@@ -1,0 +1,60 @@
+.election-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+    background-color: #1a1a1a; /* Dark background for contrast */
+}
+
+.election-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    max-width: 600px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Fixed alpha value for proper shadow */
+    font-family: Arial, sans-serif;
+    justify-content: center;
+    background-color: #222; /* Background for the container */
+    color: white; /* Ensuring text is visible */
+}
+
+.election-title {
+    text-align: center;
+    color: #3da1ff;
+}
+
+.election-details p {
+    font-size: 16px;
+    margin: 8px 0;
+    color: #ffffff;
+}
+
+.election-details strong {
+    color: #3da1ff;
+}
+
+.candidates-list {
+    background-color: #333333;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    list-style: none;
+    padding: 0;
+    border-radius: 4px;
+}
+
+.candidates-list li {
+    color: white;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 4px;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.candidates-list li:nth-child(odd),
+.candidates-list li:nth-child(even) {
+    background: dodgerblue;
+}
