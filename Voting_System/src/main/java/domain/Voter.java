@@ -17,11 +17,14 @@ public class Voter {
     private UUID voterId;
     private String voterName;
     private String voterEmail;
-    private String voterHashedPassword;
+    private String voterPassword;
     private boolean voterIsRegistered;
 
     @OneToMany(mappedBy = "voter", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<BlindCredential> blindCredentialSet = new HashSet<>();
+
+    @OneToMany(mappedBy = "voter", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Ballot> ballots = new HashSet<>(); // <-- Add this to track ballots
 
     @Override
     public String toString() {
@@ -29,7 +32,7 @@ public class Voter {
                 "voterId=" + voterId +
                 ", voterName='" + voterName + '\'' +
                 ", voterEmail='" + voterEmail + '\'' +
-                ", voterHashedPassword='" + voterHashedPassword + '\'' +
+                ", voterPassword='" + voterPassword + '\'' +
                 ", voterIsRegistered=" + voterIsRegistered +
                 '}';
     }

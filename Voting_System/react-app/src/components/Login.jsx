@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import "../styles/Login.css"
 function Login({ onLoginSuccess }) {
     const [voterEmail, setVoterEmail] = useState('');
-    const [voterHashedPassword, setVoterHashedPassword] = useState('');
+    const [voterPassword, setVoterPassword] = useState('');
 
     // Handle the form submission
     const handleLogin = async (e) => {
         e.preventDefault();
 
         const loginData = {
-            voterEmail: voterEmail,
-            voterHashedPassword: voterHashedPassword,
+            voterEmail: voterEmail.trim(),  // Make sure there's no leading/trailing space
+            voterPassword: voterPassword.trim(),
         };
 
         try {
@@ -25,15 +25,17 @@ function Login({ onLoginSuccess }) {
             const data = await response.json();
 
             if (response.ok) {
-                // Notify App component about login success
-                onLoginSuccess();
+                console.log("Login successful", data);
+                onLoginSuccess();  // Notify App component about login success
             } else {
+                console.error("Login failed:", data);  // Log failure details
                 alert(data.message || 'Login failed');
             }
         } catch (error) {
-            console.error('Login error:', error);
+            console.error('Login error:', error);  // Log the actual error
         }
     };
+
 
     return (
         <div className="login-container">
@@ -49,12 +51,12 @@ function Login({ onLoginSuccess }) {
                     />
                 </div>
                 <div>
-                    <label htmlFor="voterHashedPassword">Password:</label>
+                    <label htmlFor="voterPassword">Password:</label>
                     <input
                         type="password"
-                        id="voterHashedPassword"
-                        value={voterHashedPassword}
-                        onChange={(e) => setVoterHashedPassword(e.target.value)}
+                        id="voterPassword"
+                        value={voterPassword}
+                        onChange={(e) => setVoterPassword(e.target.value)}
                     />
                 </div>
                 <button type="submit">Login</button>

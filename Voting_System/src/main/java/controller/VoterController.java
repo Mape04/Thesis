@@ -1,15 +1,18 @@
 package controller;
 
+import dto.VoterDTO;
 import domain.Voter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import service.VoterService;
+import utils.DTOUtils;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/voters")  // Base URL for all the Voter-related endpoints
@@ -24,23 +27,29 @@ public class VoterController {
 
     // Create or update a voter
     @PostMapping
-    public ResponseEntity<Voter> createVoter(@RequestBody Voter voter) {
-        System.out.println(voter);
+    public ResponseEntity<VoterDTO> createVoter(@RequestBody VoterDTO voterDTO) {
+        System.out.println(voterDTO);
+        Voter voter = DTOUtils.toVoter(voterDTO);  // Convert DTO to entity
         Voter savedVoter = voterService.saveVoter(voter);
-        return new ResponseEntity<>(savedVoter, HttpStatus.CREATED);
+        VoterDTO savedVoterDTO = DTOUtils.toVoterDTO(savedVoter);  // Convert saved entity back to DTO
+        return new ResponseEntity<>(savedVoterDTO, HttpStatus.CREATED);
     }
 
     // Get all voters
     @GetMapping
-    public List<Voter> getAllVoters() {
-        return voterService.getAllVoters();
+    public List<VoterDTO> getAllVoters() {
+        List<Voter> voters = voterService.getAllVoters();
+        return voters.stream()
+                .map(DTOUtils::toVoterDTO)  // Convert entities to DTOs
+                .collect(Collectors.toList());
     }
 
     // Get a specific voter by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Voter> getVoterById(@PathVariable UUID id) {
+    public ResponseEntity<VoterDTO> getVoterById(@PathVariable UUID id) {
         Optional<Voter> voter = voterService.getVoterById(id);
-        return voter.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return voter.map(v -> ResponseEntity.ok(DTOUtils.toVoterDTO(v)))  // Convert entity to DTO
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Delete a voter by ID

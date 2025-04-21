@@ -26,6 +26,7 @@ public class Candidate {
                 "candidateId=" + candidateId +
                 ", candidateName='" + candidateName + '\'' +
                 ", candidateParty='" + candidateParty + '\'' +
+                ", election=" + (election != null ? election.getElectionName() : "null") +
                 '}';
     }
 }

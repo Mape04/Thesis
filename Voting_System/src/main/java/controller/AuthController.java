@@ -1,6 +1,8 @@
 package controller;
 
 import domain.Voter;
+import dto.VoterLoginDTO;
+import dto.VoterRegistrationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -9,11 +11,10 @@ import service.VoterService;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:5173")  // Allow React dev server access
 public class AuthController {
 
     private final VoterService voterService;
@@ -25,33 +26,52 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // Register a new voter
+    // Registration
     @PostMapping("/register")
-    public ResponseEntity<String> registerVoter(@RequestBody Voter voter) {
-        // Hash the password before saving
-        String hashedPassword = passwordEncoder.encode(voter.getVoterHashedPassword());
-        voter.setVoterHashedPassword(hashedPassword);
+    public ResponseEntity<?> registerVoter(@RequestBody VoterRegistrationDTO voterDTO) {
+        if (voterDTO.getVoterEmail() == null || voterDTO.getVoterPassword() == null || voterDTO.getVoterName() == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Name, email, and password must not be null"));
+        }
 
-        // Save voter to database
-        voterService.saveVoter(voter);
+        // Prevent duplicate registration
+        if (voterService.getVoterByEmail(voterDTO.getVoterEmail()).isPresent()) {
+            return ResponseEntity.status(409).body(Map.of("error", "Email already in use"));
+        }
 
-        return ResponseEntity.ok("Voter registered successfully");
+        Voter voter = new Voter();
+        voter.setVoterName(voterDTO.getVoterName());
+        voter.setVoterEmail(voterDTO.getVoterEmail());
+        voter.setVoterPassword(voterDTO.getVoterPassword());
+        voter.setVoterIsRegistered(false);
+
+        Voter savedVoter = voterService.saveVoter(voter);
+
+        return ResponseEntity.ok(Map.of("message", "Voter registered successfully", "voterId", savedVoter.getVoterId()));
     }
 
-    // Login a voter (for example, checking hashed password)
+    // Login
     @PostMapping("/login")
-    public ResponseEntity<?> loginVoter(@RequestBody Voter loginRequest) {
-        Optional<Voter> optionalVoter = voterService.getVoterByEmail(loginRequest.getVoterEmail());
+    public ResponseEntity<?> loginVoter(@RequestBody VoterLoginDTO loginDTO) {
+        if (loginDTO.getVoterEmail() == null || loginDTO.getVoterPassword() == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email and password must not be null"));
+        }
 
-        if (optionalVoter.isPresent()) {
-            Voter storedVoter = optionalVoter.get();
-            if (passwordEncoder.matches(loginRequest.getVoterHashedPassword(), storedVoter.getVoterHashedPassword())) {
-                return ResponseEntity.ok().body(Map.of("message", "Login successful"));
-            } else {
-                return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
-            }
-        } else {
+        Optional<Voter> optionalVoter = voterService.getVoterByEmail(loginDTO.getVoterEmail());
+
+        if (optionalVoter.isEmpty()) {
             return ResponseEntity.status(404).body(Map.of("error", "Voter not found"));
         }
+
+        Voter storedVoter = optionalVoter.get();
+
+        // Check if the password matches the hashed version stored in the database
+        if (!passwordEncoder.matches(loginDTO.getVoterPassword(), storedVoter.getVoterPassword())) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Login successful",
+                "voterId", storedVoter.getVoterId()
+        ));
     }
 }

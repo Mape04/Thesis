@@ -22,6 +22,10 @@ public class Ballot {
     @Column(nullable = false, unique = true)
     private String ballotSignedToken;
 
+    @ManyToOne
+    @JoinColumn(name = "voter_id", nullable = false)
+    private Voter voter;  // <-- Added this to link the voter who submitted this ballot.
+
 
     @OneToMany(mappedBy = "ballot", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Vote> votes;
@@ -31,6 +35,7 @@ public class Ballot {
         return "Ballot{" +
                 "ballotId=" + ballotId +
                 ", ballotSignedToken='" + ballotSignedToken +
+                ", voter=" + (voter != null ? voter.getVoterId() : "null") +
                 '}';
     }
 }

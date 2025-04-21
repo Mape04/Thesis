@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
@@ -18,9 +20,13 @@ public class Vote {
     @JoinColumn(name = "ballot_id", nullable = false)
     private Ballot ballot;
 
-    @ManyToOne
-    @JoinColumn(name = "candidate_id", nullable = false)
-    private Candidate chosenCandidate;
+    @ManyToMany
+    @JoinTable(
+            name = "vote_selected_candidates",
+            joinColumns = @JoinColumn(name = "vote_id"),
+            inverseJoinColumns = @JoinColumn(name = "candidate_id")
+    )
+    private Set<Candidate> selectedCandidates;  // <-- Changed to Set for multiple candidates!
 
     @ManyToOne
     @JoinColumn(name = "voter_id", nullable = false)
@@ -33,8 +39,8 @@ public class Vote {
     public String toString() {
         return "Vote{" +
                 "voteId='" + voteId + '\'' +
-                ", ballot=" + ballot +
-                ", chosenCandidate=" + chosenCandidate +
+                ", ballot=" + ballot + '\'' +
+                ", chosenCandidate=" + selectedCandidates + '\'' +
                 ", voter=" + voter +
                 '}';
     }

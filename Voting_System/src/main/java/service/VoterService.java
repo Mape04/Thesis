@@ -27,7 +27,7 @@ public class VoterService {
     // Create or update a voter
     public Voter saveVoter(Voter voter) {
         // Hash password before saving
-        voter.setVoterHashedPassword(passwordEncoder.encode(voter.getVoterHashedPassword()));
+        voter.setVoterPassword(passwordEncoder.encode(voter.getVoterPassword()));
         return voterRepository.save(voter);
     }
 

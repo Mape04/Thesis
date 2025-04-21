@@ -2,16 +2,20 @@ package controller;
 
 import domain.Candidate;
 import domain.Election;
-import domain.Election;
+import dto.CandidateDTO;
+import dto.ElectionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import service.CandidateService;
 import service.ElectionService;
+import utils.DTOUtils;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/elections")
@@ -26,41 +30,52 @@ public class ElectionController {
         this.candidateService = candidateService;
     }
 
-    // Create a new election
-    @PostMapping
-    public ResponseEntity<Election> createElection(@RequestBody Election election) {
-        Election savedElection = electionService.saveElection(election);
-        return ResponseEntity.ok(savedElection);
+    @PostMapping("/{authorityId}")
+    public ResponseEntity<ElectionDTO> createElection(
+            @PathVariable UUID authorityId,
+            @RequestBody Election electionData) {
+
+        Election createdElection = electionService.createElection(authorityId, electionData);
+        ElectionDTO response = DTOUtils.toElectionDTO(createdElection);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
-    public List<Election> getAllElections() {
-        return electionService.getAllElections();
+    public ResponseEntity<List<ElectionDTO>> getAllElections() {
+        List<ElectionDTO> electionDTOs = electionService.getAllElections()
+                .stream()
+                .map(DTOUtils::toElectionDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(electionDTOs);
     }
 
-    // Get a specific Election by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Election> getElectionById(@PathVariable UUID id) {
-        Optional<Election> Election = electionService.getElectionById(id);
-        return Election.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<ElectionDTO> getElectionById(@PathVariable UUID id) {
+        Optional<Election> election = electionService.getElectionById(id);
+        return election.map(value -> ResponseEntity.ok(DTOUtils.toElectionDTO(value)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Delete a Election by ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteElection(@PathVariable UUID id) {
         electionService.deleteElection(id);
         return ResponseEntity.noContent().build();
     }
 
-
     @GetMapping("/{electionId}/candidates")
-    public ResponseEntity<List<Candidate>> getCandidatesByElection(@PathVariable UUID electionId) {
+    public ResponseEntity<List<CandidateDTO>> getCandidatesByElection(@PathVariable UUID electionId) {
         List<Candidate> candidates = candidateService.findByElection_ElectionId(electionId);
 
         if (candidates.isEmpty()) {
-            return ResponseEntity.noContent().build(); // 204 No Content if no candidates found
+            return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok(candidates); // 200 OK with the list of candidates
+        List<CandidateDTO> candidateDTOs = candidates.stream()
+                .map(DTOUtils::toCandidateDTO)  // assuming you’ve got a CandidateDTO and a mapper
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(candidateDTOs);
     }
 }
