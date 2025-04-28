@@ -9,6 +9,8 @@ import org.springframework.web.service.annotation.DeleteExchange;
 import service.ElectionAuthorityService;
 import utils.DTOUtils;
 
+import java.security.PublicKey;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -22,7 +24,7 @@ public class ElectionAuthorityController {
 
     // Create a new Election Authority
     @PostMapping
-    public ResponseEntity<ElectionAuthorityDTO> createElectionAuthority(@RequestBody ElectionAuthorityDTO electionAuthorityDTO) {
+    public ResponseEntity<ElectionAuthorityDTO> createElectionAuthority(@RequestBody ElectionAuthorityDTO electionAuthorityDTO) throws Exception {
         ElectionAuthority electionAuthority = DTOUtils.toElectionAuthority(electionAuthorityDTO);  // Convert DTO to entity
         ElectionAuthority createdAuthority = electionAuthorityService.createElectionAuthority(electionAuthority);
         ElectionAuthorityDTO createdAuthorityDTO = DTOUtils.toElectionAuthorityDTO(createdAuthority);  // Convert entity back to DTO

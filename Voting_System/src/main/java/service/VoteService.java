@@ -19,8 +19,7 @@ public class VoteService {
     private final CandidateRepository candidateRepository;
     private final VoterRepository voterRepository;
     private final ElectionRepository electionRepository;
-    private final ElectionAuthorityService electionAuthorityService;  // Injecting the service responsible for signing the blinded token
-    private final BlindCredentialRepository blindCredentialRepository; // Assuming a repository to store BlindCredential
+    private final BlindCredentialRepository blindCredentialRepository;
 
     public String submitVote(VoteDTO voteDTO) {
         try {
@@ -30,7 +29,8 @@ public class VoteService {
 
             // 2️⃣ Validate Blind Token
             boolean validToken = voter.getBlindCredentialSet().stream()
-                    .anyMatch(cred -> cred.getSignedToken().equals(voteDTO.getVoterToken()));
+                    .anyMatch(cred -> cred.getSignedToken().equals(voteDTO.getVoterToken())
+                            && cred.getElection().getElectionId().equals(voteDTO.getElectionId()));
 
             if (!validToken) {
                 return "Invalid voting token.";
@@ -49,7 +49,6 @@ public class VoteService {
             // 5️⃣ Create Ballot
             Ballot ballot = new Ballot();
             ballot.setElection(election);
-            ballot.setBallotSignedToken(voteDTO.getBallotToken());  // Assuming the ballot token is provided in the request
             ballot.setVoter(voter);
             ballotRepository.save(ballot);
 
@@ -67,16 +66,8 @@ public class VoteService {
 
             voteRepository.save(vote);
 
-            // 7️⃣ Sign the Blinded Token using the ElectionAuthorityService
-            byte[] blindedMessage = voteDTO.getBlindedMessage();  // Assuming the request contains the blinded message
-            String signedToken = electionAuthorityService.signMessage(blindedMessage);  // Sign the blinded message
-
-            // 8️⃣ Save the BlindCredential
-            BlindCredential blindCredential = new BlindCredential();
-            blindCredential.setVoter(voter);
-            blindCredential.setElectionAuthority(election.getElectionAuthority());  // The Election Authority associated with the election
-            blindCredential.setSignedToken(signedToken);
-            blindCredentialRepository.save(blindCredential);  // Save the blind credential
+            // 🔥 No need to create new BlindCredential here anymore!
+            // The voter already received a signed token during the "sign blinded message" phase.
 
             return "Vote submitted successfully!";
         } catch (Exception e) {

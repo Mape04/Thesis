@@ -22,24 +22,13 @@ public class DTOUtils {
         );
     }
 
-    // BlindCredential to DTO
-    public static BlindCredentialDTO toBlindCredentialDTO(BlindCredential credential) {
-        if (credential == null) return null;
-        return new BlindCredentialDTO(
-                credential.getBlindCredentialId(),
-                credential.getSignedToken(),
-                credential.getVoter() != null ? credential.getVoter().getVoterId() : null
-        );
-    }
-
     // Ballot to DTO
     public static BallotDTO toBallotDTO(Ballot ballot) {
         if (ballot == null) return null;
         return new BallotDTO(
                 ballot.getBallotId(),
                 ballot.getElection() != null ? ballot.getElection().getElectionId() : null,
-                ballot.getVoter() != null ? ballot.getVoter().getVoterId() : null,
-                ballot.getBallotSignedToken()
+                ballot.getVoter() != null ? ballot.getVoter().getVoterId() : null
         );
     }
 
@@ -98,17 +87,6 @@ public class DTOUtils {
         return voter;
     }
 
-    // BlindCredentialDTO to BlindCredential
-    public static BlindCredential toBlindCredential(BlindCredentialDTO credentialDTO) {
-        if (credentialDTO == null) return null;
-        BlindCredential credential = new BlindCredential();
-        credential.setBlindCredentialId(credentialDTO.getBlindCredentialId());
-        credential.setSignedToken(credentialDTO.getSignedToken());
-        // Assuming you have a method to fetch the voter by ID
-        // credential.setVoter(findVoterById(credentialDTO.getVoterId()));
-        return credential;
-    }
-
     // BallotDTO to Ballot
     public static Ballot toBallot(BallotDTO ballotDTO) {
         if (ballotDTO == null) return null;
@@ -117,7 +95,6 @@ public class DTOUtils {
         // Assuming you have a method to fetch Election and Voter by their IDs
         // ballot.setElection(findElectionById(ballotDTO.getElectionId()));
         // ballot.setVoter(findVoterById(ballotDTO.getVoterId()));
-        ballot.setBallotSignedToken(ballotDTO.getBallotSignedToken());
         return ballot;
     }
 

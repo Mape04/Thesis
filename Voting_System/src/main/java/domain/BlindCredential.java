@@ -2,7 +2,6 @@ package domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import service.ElectionAuthorityService;
 
 import java.util.UUID;
 
@@ -24,7 +23,11 @@ public class BlindCredential {
     @JoinColumn(name = "election_authority_id", nullable = false)
     private ElectionAuthority electionAuthority;
 
-    @Column(nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "election_id", nullable = false)
+    private Election election;
+
+    @Column(name = "signed_token", columnDefinition = "TEXT", nullable = false)
     private String signedToken; // This will store the signed blinded token
 
     @Override
@@ -33,6 +36,7 @@ public class BlindCredential {
                 "blindCredentialId=" + blindCredentialId +
                 ", voter=" + voter +
                 ", electionAuthority=" + electionAuthority +
+                ", election=" + election +
                 ", signedToken='" + signedToken + '\'' +
                 '}';
     }

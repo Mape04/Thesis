@@ -4,7 +4,7 @@ import domain.Candidate;
 import domain.Election;
 import dto.CandidateDTO;
 import dto.ElectionDTO;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,23 +12,17 @@ import service.CandidateService;
 import service.ElectionService;
 import utils.DTOUtils;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/elections")
+@RequiredArgsConstructor
 public class ElectionController {
 
     private final ElectionService electionService;
     private final CandidateService candidateService;
 
-    @Autowired
-    public ElectionController(ElectionService electionService, CandidateService candidateService) {
-        this.electionService = electionService;
-        this.candidateService = candidateService;
-    }
 
     @PostMapping("/{authorityId}")
     public ResponseEntity<ElectionDTO> createElection(

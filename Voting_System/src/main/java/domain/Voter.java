@@ -34,6 +34,7 @@ public class Voter {
                 ", voterEmail='" + voterEmail + '\'' +
                 ", voterPassword='" + voterPassword + '\'' +
                 ", voterIsRegistered=" + voterIsRegistered +
+                ", blindCredentialSet=" + blindCredentialSet +
                 '}';
     }
 }

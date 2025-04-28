@@ -1,30 +1,52 @@
 package service;
 
 import domain.ElectionAuthority;
+import domain.RsaKey;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import repository.ElectionAuthorityRepository;
 import repository.ElectionRepository;
+import repository.RsaKeyRepository;
 
+import javax.crypto.SecretKey;
+import java.io.FileInputStream;
 import java.security.*;
 import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class ElectionAuthorityService {
     private final ElectionAuthorityRepository electionAuthorityRepository;
-    private final KeyPair keyPair;
+    private final KeyGenerationService keyGenerationService;
+
 
     @Autowired
-    public ElectionAuthorityService(ElectionAuthorityRepository electionAuthorityRepository) throws NoSuchAlgorithmException {
-        this.keyPair = generateKeyPair();
+    public ElectionAuthorityService(ElectionAuthorityRepository electionAuthorityRepository, KeyGenerationService keyGenerationService) throws NoSuchAlgorithmException {
         this.electionAuthorityRepository = electionAuthorityRepository;
+        this.keyGenerationService = keyGenerationService;
     }
 
-    public ElectionAuthority createElectionAuthority(ElectionAuthority authority) {
-        return electionAuthorityRepository.save(authority);
+    public ElectionAuthority createElectionAuthority(ElectionAuthority authority) throws Exception {
+        // First save authority without RSA key
+        authority = electionAuthorityRepository.save(authority);
+
+        // Then generate RSA key
+        RsaKey rsaKey = keyGenerationService.generateNewRsaKey(authority.getElectionAuthorityId());
+
+        // Attach RSA key to authority
+        authority.setRsaKeyId(rsaKey);
+
+        // ⚡ Important: save the authority again to update the RSA key field!
+        authority = electionAuthorityRepository.save(authority);
+
+        return authority;
     }
+
 
     public List<ElectionAuthority> getAllElectionAuthorities() {
         return electionAuthorityRepository.findAll();
@@ -38,23 +60,5 @@ public class ElectionAuthorityService {
     public void deleteElectionAuthority(UUID id) {
         electionAuthorityRepository.deleteById(id);
     }
-
-    private KeyPair generateKeyPair() throws NoSuchAlgorithmException {
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        keyGen.initialize(2048);
-        return keyGen.generateKeyPair();
-    }
-
-    public PublicKey getPublicKey() {
-        return keyPair.getPublic();
-    }
-
-    public String signMessage(byte[] blindedMessage) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-        Signature signature = Signature.getInstance("SHA256withRSA");
-        signature.initSign(keyPair.getPrivate());
-        signature.update(blindedMessage);
-        return Base64.getEncoder().encodeToString(signature.sign());
-    }
-
 
 }

@@ -1,4 +1,3 @@
-// ElectionAuthorityService entity (remains unchanged)
 package domain;
 
 import jakarta.persistence.*;
@@ -21,6 +20,10 @@ public class ElectionAuthority {
 
     private String authorityEmail;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "rsa_key_id")
+    private RsaKey rsaKeyId;
+
     @OneToMany(mappedBy = "electionAuthority", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<BlindCredential> blindCredentials = new HashSet<>();
 
@@ -30,7 +33,7 @@ public class ElectionAuthority {
     @Override
     public String toString() {
         return "ElectionAuthorityService{" +
-                "electionAuthorityId=" + electionAuthorityId +
+                "electionAuthorityId=" + electionAuthorityId + '\'' +
                 ", authorityName='" + authorityName + '\'' +
                 ", authorityEmail='" + authorityEmail + '\'' +
                 '}';

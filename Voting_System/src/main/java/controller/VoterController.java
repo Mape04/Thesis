@@ -58,4 +58,6 @@ public class VoterController {
         voterService.deleteVoter(id);
         return ResponseEntity.noContent().build();
     }
+
+
 }

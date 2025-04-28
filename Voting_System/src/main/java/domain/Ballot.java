@@ -19,9 +19,6 @@ public class Ballot {
     @JoinColumn(name = "election_id", nullable = false)
     private Election election;
 
-    @Column(nullable = false, unique = true)
-    private String ballotSignedToken;
-
     @ManyToOne
     @JoinColumn(name = "voter_id", nullable = false)
     private Voter voter;  // <-- Added this to link the voter who submitted this ballot.
@@ -34,7 +31,6 @@ public class Ballot {
     public String toString() {
         return "Ballot{" +
                 "ballotId=" + ballotId +
-                ", ballotSignedToken='" + ballotSignedToken +
                 ", voter=" + (voter != null ? voter.getVoterId() : "null") +
                 '}';
     }

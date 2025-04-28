@@ -3,13 +3,14 @@ package dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BlindCredentialDTO {
-    private UUID voterId;
+public class BlindedMessageDTO {
     private UUID electionId;
-    private String voterToken;
+    private String blindedMessage;  // 🔥 String, not array
+    private UUID voterId;  // 🔥 ADD THIS
 }

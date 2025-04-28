@@ -32,7 +32,7 @@ public class Vote {
     @JoinColumn(name = "voter_id", nullable = false)
     private Voter voter;
 
-    @Column(nullable = false)
+    @Column(name = "voter_signed_token", columnDefinition = "TEXT", nullable = false)
     private String voterSignedToken; // Unique voter authentication token
 
     @Override

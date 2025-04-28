@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
-import "../styles/Login.css"
-function Login({ onLoginSuccess }) {
+import React, { useState, useContext } from 'react';
+import "../styles/Login.css";
+import { VoterContext } from '../context/VoterContext';
+
+function Login() {
+    const { setVoterId, setVoterToken } = useContext(VoterContext);
     const [voterEmail, setVoterEmail] = useState('');
     const [voterPassword, setVoterPassword] = useState('');
 
-    // Handle the form submission
     const handleLogin = async (e) => {
         e.preventDefault();
 
         const loginData = {
-            voterEmail: voterEmail.trim(),  // Make sure there's no leading/trailing space
+            voterEmail: voterEmail.trim(),
             voterPassword: voterPassword.trim(),
         };
 
@@ -26,16 +28,16 @@ function Login({ onLoginSuccess }) {
 
             if (response.ok) {
                 console.log("Login successful", data);
-                onLoginSuccess();  // Notify App component about login success
+                setVoterId(data.voterId);
+                setVoterToken(data.voterToken);
             } else {
-                console.error("Login failed:", data);  // Log failure details
-                alert(data.message || 'Login failed');
+                console.error("Login failed:", data);
+                alert(data.error || 'Login failed');
             }
         } catch (error) {
-            console.error('Login error:', error);  // Log the actual error
+            console.error('Login error:', error);
         }
     };
-
 
     return (
         <div className="login-container">

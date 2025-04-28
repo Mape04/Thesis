@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import service.ElectionAuthorityService;
+import service.EncryptionService;
 import service.VoterService;
 
 import java.util.Map;
@@ -19,11 +21,13 @@ public class AuthController {
 
     private final VoterService voterService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final EncryptionService encryptionService;
 
     @Autowired
-    public AuthController(VoterService voterService, BCryptPasswordEncoder passwordEncoder) {
+    public AuthController(VoterService voterService, BCryptPasswordEncoder passwordEncoder, EncryptionService encryptionService) {
         this.voterService = voterService;
         this.passwordEncoder = passwordEncoder;
+        this.encryptionService = encryptionService;
     }
 
     // Registration
@@ -69,9 +73,14 @@ public class AuthController {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
         }
 
+        String voterToken = encryptionService.generateVoterToken(storedVoter.getVoterId());
+
         return ResponseEntity.ok(Map.of(
                 "message", "Login successful",
-                "voterId", storedVoter.getVoterId()
+                "voterId", storedVoter.getVoterId(),
+                "voterToken", voterToken
         ));
     }
+
+
 }

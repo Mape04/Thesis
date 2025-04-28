@@ -1,6 +1,8 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useContext} from "react";
 import {useNavigate} from "react-router-dom";
 import "../styles/ElectionsPage.css";
+import {VoterContext} from "../context/VoterContext.jsx";
+import Navbar from "./Navbar.jsx";
 
 function ElectionsPage() {
     const [elections, setElections] = useState([]);
@@ -63,32 +65,35 @@ function ElectionsPage() {
 
 
     return (
-        <div className="elections-page-container">
-            <h1>Available Elections</h1>
-            <div className="elections-list">
-                {elections.length > 0 ? (
-                    elections.map((election) => (
-                        <div
-                            key={election.electionId}
-                            className="election-item"
-                            onClick={() => handleElectionClick(election.electionId)}
-                        >
-                            <h3>
-                                {election.electionName}
-                            </h3>
-                            <h4>Creator: {authorities[election.electionAuthorityId]?.authorityName || "Unknown"}</h4>
-                            <p>
-                                {election.startDate ? new Date(election.startDate).toLocaleDateString() : "Unknown"}
-                                -
-                                {election.endDate ? new Date(election.endDate).toLocaleDateString() : "Unknown"}
-                            </p>
-                        </div>
-                    ))
-                ) : (
-                    <p>No elections available.</p>
-                )}
+        <>
+            <Navbar/>
+            <div className="elections-page-container">
+                <h1>Available Elections</h1>
+                <div className="elections-list">
+                    {elections.length > 0 ? (
+                        elections.map((election) => (
+                            <div
+                                key={election.electionId}
+                                className="election-item"
+                                onClick={() => handleElectionClick(election.electionId)}
+                            >
+                                <h3>
+                                    {election.electionName}
+                                </h3>
+                                <h4>Creator: {authorities[election.electionAuthorityId]?.authorityName || "Unknown"}</h4>
+                                <p>
+                                    {election.startDate ? new Date(election.startDate).toLocaleDateString() : "Unknown"}
+                                    -
+                                    {election.endDate ? new Date(election.endDate).toLocaleDateString() : "Unknown"}
+                                </p>
+                            </div>
+                        ))
+                    ) : (
+                        <p>No elections available.</p>
+                    )}
+                </div>
             </div>
-        </div>
+        </>
     );
 }
 

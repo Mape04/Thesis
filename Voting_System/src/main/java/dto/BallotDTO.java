@@ -10,5 +10,4 @@ public class BallotDTO {
     private UUID ballotId;
     private UUID electionId;
     private UUID voterId;
-    private String ballotSignedToken;
 }
