@@ -1,5 +1,6 @@
 package service;
 
+import domain.Election;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import domain.Voter;
@@ -50,4 +51,5 @@ public class VoterService {
     public Optional<Voter> getVoterByEmail(String voterEmail) {
         return voterRepository.findByVoterEmail(voterEmail);
     }
+
 }

@@ -2,6 +2,8 @@ package domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.UUID;
 
@@ -18,6 +20,7 @@ public class Candidate {
 
     @ManyToOne
     @JoinColumn(name = "election_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE) // 🔥 Add this!
     private Election election; // Candidates belong to an Election
 
     @Override

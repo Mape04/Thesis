@@ -2,6 +2,8 @@ package domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.UUID;
 
@@ -21,10 +23,12 @@ public class BlindCredential {
 
     @ManyToOne
     @JoinColumn(name = "election_authority_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE) // 🔥 Also add this
     private ElectionAuthority electionAuthority;
 
     @ManyToOne
     @JoinColumn(name = "election_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE) // 🔥 Add this
     private Election election;
 
     @Column(name = "signed_token", columnDefinition = "TEXT", nullable = false)

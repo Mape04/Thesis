@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useContext } from "react";
-import { useParams } from "react-router-dom";
-import { VoterContext } from '../context/VoterContext';
+import React, {useEffect, useState, useContext} from "react";
+import {useParams} from "react-router-dom";
+import {VoterContext} from '../context/VoterContext';
 import "../styles/ElectionDetails.css";
 import Navbar from "./Navbar.jsx";
 
@@ -50,51 +50,106 @@ async function sha256Hash(text) {
 }
 
 function ElectionDetails() {
-    const { electionId } = useParams();
-    const { voterId } = useContext(VoterContext);
+    const {electionId} = useParams();
+    const {voterId} = useContext(VoterContext);
     const [election, setElection] = useState(null);
     const [candidates, setCandidates] = useState([]);
     const [selectedCandidates, setSelectedCandidates] = useState([]);
-    const [publicKey, setPublicKey] = useState({ e: null, n: null });
+    const [publicKey, setPublicKey] = useState({e: null, n: null});
+    const [liveResults, setLiveResults] = useState({});
+    const [finalResults, setFinalResults] = useState({});
+    const [hasVoted, setHasVoted] = useState(false);
+    const [totalVotes, setTotalVotes] = useState(0);
 
-    useEffect(() => {
-        const fetchElectionDetails = async () => {
-            try {
-                const response = await fetch(`http://localhost:8080/api/elections/${electionId}`);
+
+    const fetchResults = async () => {
+        try {
+            const now = new Date();
+            const electionEnd = new Date(election.endDate);
+
+            if (now < electionEnd) {
+                const response = await fetch(`http://localhost:8080/api/elections/${electionId}/live-results`);
                 const data = await response.json();
-                setElection(data);
+                setLiveResults(data);
+            } else {
+                const response = await fetch(`http://localhost:8080/api/elections/${electionId}/final-results`);
+                const data = await response.json();
+                setFinalResults(data);
+            }
+        } catch (error) {
+            console.error("Error fetching results:", error);
+        }
+    };
+
+    const fetchTotalVotes = async () => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/elections/${electionId}/vote-count`);
+            const total = await response.json();
+            setTotalVotes(total);
+        } catch (error) {
+            console.error("Error fetching total votes:", error);
+        }
+    };
+
+
+
+    // 1. First fetch basic election + candidates + public key
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const electionResponse = await fetch(`http://localhost:8080/api/elections/${electionId}`);
+                const electionData = await electionResponse.json();
+                setElection(electionData);
+
+                const candidatesResponse = await fetch(`http://localhost:8080/api/elections/${electionId}/candidates`);
+                const candidatesData = await candidatesResponse.json();
+                setCandidates(candidatesData);
+
+                const publicKeyResponse = await fetch(`http://localhost:8080/api/encryption/public-key/${electionId}`);
+                if (!publicKeyResponse.ok) {
+                    throw new Error("Failed to fetch public key");
+                }
+                const publicKeyData = await publicKeyResponse.json();
+                setPublicKey({n: BigInt(publicKeyData.n), e: BigInt(publicKeyData.e)});
+
             } catch (error) {
                 console.error("Error fetching election details:", error);
             }
         };
 
-        const fetchCandidates = async () => {
-            try {
-                const response = await fetch(`http://localhost:8080/api/elections/${electionId}/candidates`);
-                const data = await response.json();
-                setCandidates(data);
-            } catch (error) {
-                console.error("Error fetching candidates:", error);
-            }
-        };
-
-        const fetchPublicKey = async () => {
-            try {
-                const response = await fetch(`http://localhost:8080/api/encryption/public-key/${electionId}`);
-                if (!response.ok) {
-                    throw new Error("Failed to fetch public key");
-                }
-                const data = await response.json();
-                setPublicKey({ n: BigInt(data.n), e: BigInt(data.e) });
-            } catch (error) {
-                console.error("Error fetching public key:", error);
-            }
-        };
-
-        fetchElectionDetails();
-        fetchCandidates();
-        fetchPublicKey();
+        fetchData();
     }, [electionId]);
+
+// 2. Then when election is loaded, fetch results and voter status
+    useEffect(() => {
+        if (!election) return;
+
+        fetchResults();
+        fetchTotalVotes();
+
+        const checkIfVoted = async () => {
+            try {
+                const response = await fetch(`http://localhost:8080/api/voters/${voterId}/elections/${electionId}/voted`);
+                const voted = await response.json();
+                setHasVoted(voted);
+            } catch (error) {
+                console.error("Error checking if voted:", error);
+            }
+        };
+
+        checkIfVoted();
+
+        const savedChoices = localStorage.getItem(`votedChoices-${electionId}`);
+        if (savedChoices) {
+            const parsedChoices = JSON.parse(savedChoices);
+            setSelectedCandidates(parsedChoices);
+            setHasVoted(true);
+        }
+
+    }, [election, electionId, voterId]);
+
+
+
 
     const handleCheckboxChange = (candidateId) => {
         setSelectedCandidates(prev =>
@@ -140,7 +195,7 @@ function ElectionDetails() {
             // 4. Send blinded message for signing
             const response = await fetch("http://localhost:8080/api/encryption/sign-blinded-message", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
                     voterId: voterId,
                     blindedMessage: blindedMessage.toString(),
@@ -165,7 +220,7 @@ function ElectionDetails() {
             // 6. Save final token into BlindCredential
             await fetch("http://localhost:8080/api/blind-credential/save", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
                     voterId: voterId,
                     electionId: electionId,
@@ -173,10 +228,9 @@ function ElectionDetails() {
                 })
             });
 
-            // 7. Submit vote normally
             const voteResponse = await fetch("http://localhost:8080/api/votes", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
                     voterId: voterId,
                     voterToken: finalSignedToken.toString(),
@@ -185,12 +239,24 @@ function ElectionDetails() {
                 })
             });
 
-            if (voteResponse.ok) {
-                alert("Vote submitted successfully!");
-                setSelectedCandidates([]);
+            const responseText = await voteResponse.text(); // Always first read as plain text
+
+            let responseData;
+            try {
+                responseData = JSON.parse(responseText); // Try parsing it manually
+            } catch (e) {
+                console.error("Error parsing JSON:", e);
+                throw new Error(responseText || "Server returned invalid response.");
+            }
+
+            if (responseData.status === "success") {
+                alert(responseData.message);
+                localStorage.setItem(`votedChoices-${electionId}`, JSON.stringify(selectedCandidates));
+                setHasVoted(true);
+                fetchResults();
+                fetchTotalVotes();
             } else {
-                const errorData = await voteResponse.text();
-                alert(errorData || "Error submitting vote.");
+                alert(responseData.message);
             }
         } catch (error) {
             console.error("Error submitting vote:", error);
@@ -205,32 +271,54 @@ function ElectionDetails() {
             <Navbar/>
             <div className="election-page">
                 <div className="election-container">
-                    <h1>{election.electionName}</h1>
-                    <p><strong>Start:</strong> {election.startDate}</p>
-                    <p><strong>End:</strong> {election.endDate}</p>
-                    <p><strong>Votes:</strong> {election.electionVotes}</p>
-                    <p><strong>Select:</strong> {election.nrVotesPerVoter} candidates</p>
-                    <p>{election.electionDescription}</p>
+                    <h1 className="election-title">{election.electionName}</h1>
 
-                    <h2>Candidates</h2>
-                    <ul>
+                    <div className="election-info">
+                        <p><strong>Start:</strong> {new Date(election.startDate).toLocaleString()}</p>
+                        <p><strong>End:</strong> {new Date(election.endDate).toLocaleString()}</p>
+                        <p><strong>Total Votes:</strong> {totalVotes}</p>
+                        <p><strong>Max Selections:</strong> {election.nrVotesPerVoter}</p>
+                        <p className="election-description">{election.electionDescription}</p>
+                    </div>
+
+                    <h2 className="candidates-title">Candidates</h2>
+                    <ul className="candidates-list">
                         {candidates.map(candidate => (
-                            <li key={candidate.candidateId}>
-                                <label>
+                            <li key={candidate.candidateId} className={`candidate-item ${hasVoted ? 'voted' : ''}`}>
+                                <label className="candidate-label">
                                     <input
                                         type="checkbox"
+                                        disabled={hasVoted}
                                         checked={selectedCandidates.includes(candidate.candidateId)}
                                         onChange={() => handleCheckboxChange(candidate.candidateId)}
                                     />
-                                    {candidate.candidateName} - {candidate.candidateParty}
+                                    <span className="candidate-name">
+                                    {candidate.candidateName} <small>({candidate.candidateParty})</small>
+                                    </span>
+
+                                    <span className="candidate-result">
+                                      {liveResults[candidate.candidateName] !== undefined && (
+                                          <span> | Votes: {liveResults[candidate.candidateName]}</span>
+                                      )}
+                                        {finalResults[candidate.candidateName] !== undefined && (
+                                            <span> | {finalResults[candidate.candidateName].toFixed(2)}%</span>
+                                        )}
+                                     </span>
                                 </label>
                             </li>
                         ))}
                     </ul>
 
-                    <button onClick={handleSubmitVote}>Submit Vote</button>
+                    <button
+                        onClick={handleSubmitVote}
+                        disabled={hasVoted}
+                        className="submit-vote-button"
+                    >
+                        Submit Vote
+                    </button>
                 </div>
             </div>
+
         </>
     );
 }

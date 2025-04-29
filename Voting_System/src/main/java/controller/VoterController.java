@@ -1,11 +1,14 @@
 package controller;
 
+import domain.Election;
 import dto.VoterDTO;
 import domain.Voter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import service.ElectionService;
+import service.VoteService;
 import service.VoterService;
 import utils.DTOUtils;
 
@@ -19,10 +22,15 @@ import java.util.stream.Collectors;
 public class VoterController {
 
     private final VoterService voterService;
+    private final ElectionService electionService;
+    private final VoteService voteService;
+
 
     @Autowired
-    public VoterController(VoterService voterService) {
+    public VoterController(VoterService voterService, ElectionService electionService, VoteService voteService) {
         this.voterService = voterService;
+        this.electionService = electionService;
+        this.voteService = voteService;
     }
 
     // Create or update a voter
@@ -57,6 +65,20 @@ public class VoterController {
     public ResponseEntity<Void> deleteVoter(@PathVariable UUID id) {
         voterService.deleteVoter(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("{voterId}/elections/{electionId}/voted")
+    public ResponseEntity<Boolean> hasVoterVoted(
+            @PathVariable UUID voterId,
+            @PathVariable UUID electionId) {
+
+        Voter voter = voterService.getVoterById(voterId)
+                .orElseThrow(() -> new RuntimeException("Voter not found"));
+        Election election = electionService.getElectionById(electionId)
+                .orElseThrow(() -> new RuntimeException("Election not found"));
+
+        long votes = voteService.countByVoterAndBallot_Election(voter, election);
+        return ResponseEntity.ok(votes > 0);
     }
 
 

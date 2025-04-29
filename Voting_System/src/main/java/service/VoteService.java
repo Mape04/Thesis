@@ -2,12 +2,17 @@ package service;
 
 import domain.*;
 import dto.VoteDTO;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import repository.*;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,38 +26,43 @@ public class VoteService {
     private final ElectionRepository electionRepository;
     private final BlindCredentialRepository blindCredentialRepository;
 
-    public String submitVote(VoteDTO voteDTO) {
+    public ResponseEntity<Map<String, String>> submitVote(VoteDTO voteDTO) {
+        Map<String, String> response = new HashMap<>();
         try {
-            // 1️⃣ Fetch the Voter
+            // 1. Fetch voter
             Voter voter = voterRepository.findById(voteDTO.getVoterId())
                     .orElseThrow(() -> new IllegalArgumentException("Voter not found."));
 
-            // 2️⃣ Validate Blind Token
+            // 2. Validate token
             boolean validToken = voter.getBlindCredentialSet().stream()
                     .anyMatch(cred -> cred.getSignedToken().equals(voteDTO.getVoterToken())
                             && cred.getElection().getElectionId().equals(voteDTO.getElectionId()));
 
             if (!validToken) {
-                return "Invalid voting token.";
+                response.put("status", "error");
+                response.put("message", "Invalid voting token.");
+                return ResponseEntity.badRequest().body(response);
             }
 
-            // 3️⃣ Fetch Election
+            // 3. Fetch election
             Election election = electionRepository.findById(voteDTO.getElectionId())
                     .orElseThrow(() -> new IllegalArgumentException("Election not found."));
 
-            // 4️⃣ Check Votes Per Voter Limit
-            long alreadyVotedCount = voteRepository.countByVoterAndBallot_Election(voter, election);
-            if (alreadyVotedCount >= election.getNrVotesPerVoter()) {
-                return "Vote limit exceeded for this election.";
+            // 4. Validate number of candidates
+            if (election.getNrVotesPerVoter() > 0) {
+                if (voteDTO.getCandidateIds().size() != election.getNrVotesPerVoter()) {
+                    response.put("status", "error");
+                    response.put("message", "You must select exactly " + election.getNrVotesPerVoter() + " candidates.");
+                    return ResponseEntity.badRequest().body(response);
+                }
             }
 
-            // 5️⃣ Create Ballot
+            // 🔥 Only if validation OK: continue to create Ballot and Vote!
             Ballot ballot = new Ballot();
             ballot.setElection(election);
             ballot.setVoter(voter);
             ballotRepository.save(ballot);
 
-            // 6️⃣ Create Vote with Selected Candidates
             Set<Candidate> selectedCandidates = voteDTO.getCandidateIds().stream()
                     .map(candidateId -> candidateRepository.findById(candidateId)
                             .orElseThrow(() -> new IllegalArgumentException("Candidate not found: " + candidateId)))
@@ -63,16 +73,26 @@ public class VoteService {
             vote.setVoter(voter);
             vote.setSelectedCandidates(selectedCandidates);
             vote.setVoterSignedToken(voteDTO.getVoterToken());
-
             voteRepository.save(vote);
 
-            // 🔥 No need to create new BlindCredential here anymore!
-            // The voter already received a signed token during the "sign blinded message" phase.
+            response.put("status", "success");
+            response.put("message", "Vote submitted successfully!");
+            return ResponseEntity.ok(response);
 
-            return "Vote submitted successfully!";
         } catch (Exception e) {
             e.printStackTrace();
-            return "Error processing the vote: " + e.getMessage();
+            response.put("status", "error");
+            response.put("message", "Error processing the vote: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+
+
+    public long countVotesByCandidate(UUID candidateId) {
+        return voteRepository.countVotesByCandidate(candidateId);
+    }
+
+    public long countByVoterAndBallot_Election(Voter voter, Election election) {
+        return voteRepository.countByVoterAndBallot_Election(voter, election);
     }
 }

@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import service.VoteService;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/votes")
 @RequiredArgsConstructor
@@ -18,13 +20,8 @@ public class VoteController {
     private final VoteService voteService;
 
     @PostMapping
-    public ResponseEntity<String> submitVote(@RequestBody VoteDTO voteDTO) {
-        String result = voteService.submitVote(voteDTO);
-
-        if (result.equals("Vote submitted successfully!")) {
-            return ResponseEntity.ok(result);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
-        }
+    public ResponseEntity<Map<String, String>> submitVote(@RequestBody VoteDTO voteDTO) {
+        return voteService.submitVote(voteDTO);
     }
+
 }
