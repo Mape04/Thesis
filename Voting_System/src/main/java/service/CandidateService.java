@@ -1,6 +1,7 @@
 package service;
 
 import domain.Candidate;
+import dto.CandidateDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import repository.CandidateRepository;
@@ -41,4 +42,15 @@ public class CandidateService {
     public List<Candidate> findByElection_ElectionId(UUID electionId) {
         return candidateRepository.findByElection_ElectionId(electionId);
     }
+
+    public Candidate updateCandidate(UUID id, CandidateDTO dto) {
+        Candidate candidate = candidateRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Candidate not found"));
+
+        candidate.setCandidateName(dto.getCandidateName());
+        candidate.setCandidateParty(dto.getCandidateParty());
+
+        return candidateRepository.save(candidate);
+    }
+
 }

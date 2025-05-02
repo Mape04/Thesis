@@ -43,6 +43,17 @@ public class CandidateController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<CandidateDTO> updateCandidate(
+            @PathVariable UUID id,
+            @RequestBody CandidateDTO dto) {
+
+        Candidate updated = candidateService.updateCandidate(id, dto);
+        return ResponseEntity.ok(toCandidateDTO(updated));
+    }
+
+
+
 
     @GetMapping
     public ResponseEntity<List<CandidateDTO>> getAllCandidates() {

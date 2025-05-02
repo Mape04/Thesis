@@ -1,5 +1,7 @@
 package controller;
 
+import domain.Election;
+import domain.Voter;
 import dto.ElectionAuthorityDTO;
 import domain.ElectionAuthority;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.service.annotation.DeleteExchange;
 import service.ElectionAuthorityService;
+import service.ElectionService;
+import service.VoterService;
 import utils.DTOUtils;
 
 import java.security.PublicKey;
@@ -21,6 +25,8 @@ import java.util.stream.Collectors;
 public class ElectionAuthorityController {
 
     private final ElectionAuthorityService electionAuthorityService;
+    private final VoterService voterService;
+    private final ElectionService electionService;
 
     // Create a new Election Authority
     @PostMapping
@@ -58,4 +64,21 @@ public class ElectionAuthorityController {
         electionAuthorityService.deleteElectionAuthority(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/match")
+    public ResponseEntity<Boolean> isVoterAuthority(
+            @RequestParam UUID voterId,
+            @RequestParam UUID electionId
+    ) {
+        Voter voter = voterService.getVoterById(voterId)
+                .orElseThrow(() -> new RuntimeException("Voter not found"));
+
+        Election election = electionService.getElectionById(electionId)
+                .orElseThrow(() -> new RuntimeException("Election not found"));
+
+        return ResponseEntity.ok(
+                election.getElectionAuthority().getAuthorityEmail().equalsIgnoreCase(voter.getVoterEmail())
+        );
+    }
+
 }

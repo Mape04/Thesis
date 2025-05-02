@@ -1,147 +1,154 @@
-/* Elections Page Main Container */
 .elections-page-container {
+    min-height: 100vh;
+    background-color: #0f172a;
+    color: white;
     padding: 2rem;
-    max-width: 1000px;
-    margin: auto;
-    color: #e0e0e0;
+    font-family: "Segoe UI", sans-serif;
 }
 
-/* Search and Create Bar */
-.search-create-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.elections-page-container h1 {
+    font-size: 2rem;
+    color: #22d3ee;
+    text-align: center;
     margin-bottom: 2rem;
 }
 
+/* Search and Create Button Bar */
+.search-create-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
 .search-bar {
-    flex-grow: 1;
-    padding: 0.7rem 1rem;
+    flex: 1;
+    padding: 0.75rem;
     font-size: 1rem;
-    border: 1px solid #333;
-    border-radius: 8px;
-    margin-right: 1rem;
-    background-color: #1e1e2f;
-    color: #e0e0e0;
+    border: none;
+    border-radius: 6px;
+    background-color: #1e293b;
+    color: white;
 }
 
 .create-election-button {
-    padding: 0.7rem 1.5rem;
-    background-color: #4fc3f7;
-    color: #121212;
-    border: none;
-    border-radius: 8px;
+    padding: 0.75rem 1.25rem;
+    background-color: #22d3ee;
+    color: #0f172a;
     font-weight: bold;
-    font-size: 1rem;
+    border: none;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background 0.3s;
 }
 
 .create-election-button:hover {
-    background-color: #29b6f6;
+    background-color: #06b6d4;
 }
 
-/* Elections List */
+/* Election List Items */
 .elections-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-top: 2rem;
+    display: grid;
+    gap: 1.5rem;
 }
 
 .election-item {
-    background-color: #1e1e2f;
-    padding: 1rem;
+    background-color: #1e293b;
     border-radius: 10px;
-    flex: 1 1 300px;
-    min-height: 160px;
+    padding: 1.5rem;
     cursor: pointer;
-    transition: background 0.3s, transform 0.2s;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    transition: background 0.3s;
+    border-left: 4px solid transparent;
 }
 
 .election-item:hover {
-    background-color: #2a2a3d;
-    transform: translateY(-5px);
+    background-color: #263044;
+    border-left: 4px solid #22d3ee;
 }
 
-/* Modal Overlay */
+.election-item h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.election-item h4 {
+    font-size: 1rem;
+    font-weight: normal;
+    color: #a1a1aa;
+}
+
+.election-item p {
+    color: #94a3b8;
+}
+
+/* Modal Styling */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(10, 10, 10, 0.8);
+    background-color: rgba(15, 23, 42, 0.8);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 999;
 }
 
-/* Modal Content */
 .modal-content {
-    background-color: #1e1e2f;
+    background-color: #1e293b;
     padding: 2rem;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 600px;
-    color: #e0e0e0;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.modal-content h2 {
-    text-align: center;
-    color: #4fc3f7;
-}
-
-.modal-content input[type="text"],
-.modal-content input[type="datetime-local"],
-.modal-content input[type="number"] {
-    padding: 0.7rem;
-    border: 1px solid #333;
-    border-radius: 8px;
-    background-color: #2a2a3d;
-    color: #e0e0e0;
-    font-size: 1rem;
+    border-radius: 10px;
     width: 100%;
+    max-width: 500px;
+    color: white;
+}
+
+.modal-content h2, .modal-content h3 {
+    color: #22d3ee;
+    margin-bottom: 1rem;
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    border: none;
+    background-color: #2a2a3d;
+    color: white;
 }
 
 .modal-buttons {
     display: flex;
-    justify-content: space-between;
-    margin-top: 1rem;
+    justify-content: flex-end;
+    gap: 1rem;
 }
 
 .modal-buttons button {
-    flex: 1;
-    margin: 0 0.5rem;
-    padding: 0.7rem;
-    font-weight: bold;
+    padding: 0.6rem 1rem;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
+    font-weight: bold;
     cursor: pointer;
-    transition: background 0.3s;
 }
 
 .modal-buttons button:first-child {
-    background-color: #4caf50;
-    color: white;
-}
-
-.modal-buttons button:first-child:hover {
-    background-color: #43a047;
+    background-color: #22d3ee;
+    color: #0f172a;
 }
 
 .modal-buttons button:last-child {
-    background-color: #f44336;
+    background-color: transparent;
     color: white;
+    border: 1px solid #ffffff33;
 }
 
-.modal-buttons button:last-child:hover {
-    background-color: #e53935;
+.candidate-input-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
 }

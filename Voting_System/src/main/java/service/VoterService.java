@@ -28,7 +28,14 @@ public class VoterService {
 
     // Create or update a voter
     public Voter saveVoter(Voter voter) {
-        // Hash password before saving
+        if (!voter.getVoterEmail().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+            throw new IllegalArgumentException("Invalid email format.");
+        }
+
+        if (voter.getVoterPassword().length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters.");
+        }
+
         voter.setVoterPassword(passwordEncoder.encode(voter.getVoterPassword()));
         return voterRepository.save(voter);
     }

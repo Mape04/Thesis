@@ -2,26 +2,36 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
-    background-color: #2C3E50;
+    padding: 1rem 2rem;
+    background-color: #0f172a;
     color: white;
-    font-size: 18px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    font-family: "Segoe UI", sans-serif;
 }
 
 .navbar-left {
+    font-size: 1.5rem;
     font-weight: bold;
+    color: #22d3ee;
 }
 
-.navbar-right .logout-button {
-    background-color: #E74C3C;
-    color: white;
+.navbar-right {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.logout-button {
+    background-color: #22d3ee;
+    color: #0f172a;
+    padding: 0.5rem 1rem;
     border: none;
-    padding: 8px 14px;
-    border-radius: 5px;
+    border-radius: 6px;
+    font-weight: bold;
     cursor: pointer;
-    font-size: 14px;
+    transition: background 0.3s ease;
 }
 
-.navbar-right .logout-button:hover {
-    background-color: #C0392B;
+.logout-button:hover {
+    background-color: #06b6d4;
 }

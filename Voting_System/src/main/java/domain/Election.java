@@ -22,6 +22,9 @@ public class Election {
 
     private String electionName;
 
+    @Column(nullable = true)
+    private String electionPassword;
+
     private LocalDateTime startDate;
 
     private LocalDateTime endDate;

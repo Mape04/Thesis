@@ -11,6 +11,7 @@ import java.util.UUID;
 public class ElectionDTO {
     private UUID electionId;
     private String electionName;
+    private String electionPassword;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private Integer electionVotes;

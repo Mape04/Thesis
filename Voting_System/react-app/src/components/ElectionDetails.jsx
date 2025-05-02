@@ -3,6 +3,7 @@ import {useParams} from "react-router-dom";
 import {VoterContext} from '../context/VoterContext';
 import "../styles/ElectionDetails.css";
 import Navbar from "./Navbar.jsx";
+import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 
 // Modular exponentiation
 const modPow = (base, exponent, modulus) => {
@@ -47,6 +48,7 @@ async function sha256Hash(text) {
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
 }
 
 function ElectionDetails() {
@@ -60,6 +62,11 @@ function ElectionDetails() {
     const [finalResults, setFinalResults] = useState({});
     const [hasVoted, setHasVoted] = useState(false);
     const [totalVotes, setTotalVotes] = useState(0);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [editedElection, setEditedElection] = useState({});
+    const [isAuthority, setIsAuthority] = useState(false);
+    const [removedCandidateIds, setRemovedCandidateIds] = useState([]);
+
 
 
     const fetchResults = async () => {
@@ -122,7 +129,7 @@ function ElectionDetails() {
 
 // 2. Then when election is loaded, fetch results and voter status
     useEffect(() => {
-        if (!election) return;
+        if (!election || !voterId) return;
 
         fetchResults();
         fetchTotalVotes();
@@ -146,7 +153,72 @@ function ElectionDetails() {
             setHasVoted(true);
         }
 
+        fetch(`http://localhost:8080/api/election-authorities/match?voterId=${voterId}&electionId=${electionId}`)
+            .then(res => res.json())
+            .then(setIsAuthority)
+            .catch(err => console.error("Authority check failed", err));
+
     }, [election, electionId, voterId]);
+
+    const submitElectionEdit = async () => {
+        try {
+            // 🔹 Update the election info
+            const res = await fetch(`http://localhost:8080/api/elections/${election.electionId}`, {
+                method: 'PUT',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(editedElection),
+            });
+
+            if (!res.ok) {
+                alert("Failed to update election.");
+                return;
+            }
+
+            // 🔹 Update candidates
+            // 1. Create new ones
+            for (const c of editedElection.candidates.filter(c => !c.candidateId)) {
+                await fetch("http://localhost:8080/api/candidates", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        candidateName: c.candidateName,
+                        candidateParty: c.candidateParty,
+                        candidateElectionId: election.electionId
+                    })
+                });
+            }
+
+            // 2. Update existing
+            for (const c of editedElection.candidates.filter(c => c.candidateId)) {
+                await fetch(`http://localhost:8080/api/candidates/${c.candidateId}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        candidateName: c.candidateName,
+                        candidateParty: c.candidateParty,
+                        candidateElectionId: election.electionId
+                    })
+                });
+            }
+
+            // 3. Delete removed candidates (track with a `removedCandidateIds` array)
+            for (const id of removedCandidateIds) {
+                await fetch(`http://localhost:8080/api/candidates/${id}`, {
+                    method: "DELETE"
+                });
+            }
+
+            alert("Election updated successfully!");
+            setIsEditMode(false);
+
+            // 🔁 Optionally re-fetch the election and candidates
+            window.location.reload();
+
+        } catch (err) {
+            console.error("Edit error:", err);
+            alert("Server error.");
+        }
+    };
 
 
 
@@ -316,8 +388,133 @@ function ElectionDetails() {
                     >
                         Submit Vote
                     </button>
+                    {isAuthority && new Date(election.endDate) > new Date() && (
+                        <button
+                            className="edit-election-button"
+                            onClick={() => {
+                                setEditedElection({...election, candidates});
+                                setRemovedCandidateIds([]);
+                                setIsEditMode(true);
+                            }}
+                        >
+                            <FaEdit style={{marginRight: "6px"}}/>
+                            Edit Election
+                        </button>
+
+                    )}
+
+
                 </div>
             </div>
+
+            {isEditMode && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>Edit Election</h2>
+
+                        <input
+                            type="text"
+                            name="electionName"
+                            placeholder="Election Name"
+                            value={editedElection.electionName}
+                            onChange={(e) => setEditedElection({...editedElection, electionName: e.target.value})}
+                        />
+                        <input
+                            type="text"
+                            name="electionDescription"
+                            placeholder="Description"
+                            value={editedElection.electionDescription}
+                            onChange={(e) => setEditedElection({
+                                ...editedElection,
+                                electionDescription: e.target.value
+                            })}
+                        />
+                        <input
+                            type="datetime-local"
+                            name="startDate"
+                            value={editedElection.startDate}
+                            onChange={(e) => setEditedElection({...editedElection, startDate: e.target.value})}
+                        />
+                        <input
+                            type="datetime-local"
+                            name="endDate"
+                            value={editedElection.endDate}
+                            onChange={(e) => setEditedElection({...editedElection, endDate: e.target.value})}
+                        />
+                        <input
+                            type="number"
+                            name="nrVotesPerVoter"
+                            placeholder="Votes per Voter"
+                            value={editedElection.nrVotesPerVoter}
+                            onChange={(e) => setEditedElection({...editedElection, nrVotesPerVoter: e.target.value})}
+                        />
+                        <h3>Edit Candidates</h3>
+                        {editedElection.candidates?.map((candidate, index) => (
+                            <div key={index} className="candidate-input-group">
+                                <input
+                                    type="text"
+                                    placeholder="Candidate Name"
+                                    value={candidate.candidateName}
+                                    onChange={(e) => {
+                                        const updated = [...editedElection.candidates];
+                                        updated[index].candidateName = e.target.value;
+                                        setEditedElection({...editedElection, candidates: updated});
+                                    }}
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Party"
+                                    value={candidate.candidateParty}
+                                    onChange={(e) => {
+                                        const updated = [...editedElection.candidates];
+                                        updated[index].candidateParty = e.target.value;
+                                        setEditedElection({...editedElection, candidates: updated});
+                                    }}
+                                />
+                                <button
+                                    type="button"
+                                    className="remove-candidate-button"
+                                    onClick={() => {
+                                        const removed = candidate.candidateId
+                                            ? [...removedCandidateIds, candidate.candidateId]
+                                            : removedCandidateIds;
+
+                                        const updated = editedElection.candidates.filter((_, i) => i !== index);
+
+                                        setRemovedCandidateIds(removed);
+                                        setEditedElection({...editedElection, candidates: updated});
+                                    }}
+                                >
+                                    <FaTrash/>
+                                </button>
+                            </div>
+                        ))}
+
+                        <button
+                            type="button"
+                            className="add-candidate-button"
+                            onClick={() =>
+                                setEditedElection({
+                                    ...editedElection,
+                                    candidates: [...(editedElection.candidates || []), {
+                                        candidateName: "",
+                                        candidateParty: ""
+                                    }]
+                                })
+                            }
+                        >
+                            <FaPlus/> Add Candidate
+                        </button>
+
+
+                        <div className="modal-buttons">
+                            <button onClick={submitElectionEdit}>Save Changes</button>
+                            <button onClick={() => setIsEditMode(false)}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
 
         </>
     );

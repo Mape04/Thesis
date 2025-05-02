@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faLock } from '@fortawesome/free-solid-svg-icons';
+
 import "../styles/ElectionsPage.css";
 import { VoterContext } from "../context/VoterContext.jsx";
 import Navbar from "./Navbar.jsx";
@@ -9,10 +12,15 @@ function ElectionsPage() {
     const [authorities, setAuthorities] = useState({});
     const [searchQuery, setSearchQuery] = useState('');
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [selectedElectionId, setSelectedElectionId] = useState(null);
+    const [passwordInput, setPasswordInput] = useState('');
+    const [passwordError, setPasswordError] = useState('');
     const [voterInfo, setVoterInfo] = useState({ voterName: '', voterEmail: '' });
 
     const [newElection, setNewElection] = useState({
         electionName: '',
+        electionPassword: '',
         startDate: '',
         endDate: '',
         nrVotesPerVoter: '',
@@ -23,6 +31,30 @@ function ElectionsPage() {
     const { voterId } = useContext(VoterContext); // 🔥 You might use voterId for creating ElectionAuthority
 
     const navigate = useNavigate();
+
+    const handlePasswordSubmit = async () => {
+        try {
+            const response = await fetch('http://localhost:8080/api/elections/verify-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    electionId: selectedElectionId,
+                    password: passwordInput
+                })
+            });
+
+            if (response.ok) {
+                navigate(`/election/${selectedElectionId}`);
+            } else {
+                const data = await response.json();
+                setPasswordError(data.error || 'Incorrect password.');
+            }
+        } catch (err) {
+            console.error('Error verifying password:', err);
+            setPasswordError('Server error.');
+        }
+    };
+
 
 
     useEffect(() => {
@@ -68,9 +100,25 @@ function ElectionsPage() {
         fetchElections();
     }, [voterId]);
 
-    const handleElectionClick = (electionId) => {
-        navigate(`/election/${electionId}`);
+    const handleElectionClick = async (electionId) => {
+        try {
+            const res = await fetch(`http://localhost:8080/api/elections/${electionId}`);
+            const data = await res.json();
+
+            if (data.electionPassword) {
+                setSelectedElectionId(electionId);
+                setShowPasswordModal(true);
+                setPasswordInput('');
+                setPasswordError('');
+            } else {
+                navigate(`/election/${electionId}`);
+            }
+        } catch (error) {
+            console.error("Failed to fetch election info:", error);
+        }
     };
+
+
 
     const handleCreateElectionClick = () => {
         setShowCreateModal(true);
@@ -123,11 +171,13 @@ function ElectionsPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     electionName: newElection.electionName,
+                    electionPassword: newElection.electionPassword || null, //send null if empty
                     startDate: newElection.startDate,
                     endDate: newElection.endDate,
                     electionVotes: 0,
                     nrVotesPerVoter: parseInt(newElection.nrVotesPerVoter),
                     electionDescription: "Custom created election"
+
                 })
             });
 
@@ -188,7 +238,14 @@ function ElectionsPage() {
                                     className="election-item"
                                     onClick={() => handleElectionClick(election.electionId)}
                                 >
-                                    <h3>{election.electionName}</h3>
+                                    <h3>
+                                        {election.electionName}
+                                        {election.electionPassword && (
+                                            <FontAwesomeIcon icon={faLock} title="Private Election"
+                                                             style={{marginLeft: "8px", color: "#ff5252"}}/>
+                                        )}
+                                    </h3>
+
                                     <h4>Creator: {authorities[election.electionAuthorityId]?.authorityName || "Unknown"}</h4>
                                     <p>
                                         {election.startDate ? new Date(election.startDate).toLocaleDateString() : "Unknown"} -
@@ -213,6 +270,13 @@ function ElectionsPage() {
                             name="electionName"
                             placeholder="Election Name"
                             value={newElection.electionName}
+                            onChange={handleModalChange}
+                        />
+                        <input
+                            type="password"
+                            name="electionPassword"
+                            placeholder="(Optional) Election Password"
+                            value={newElection.electionPassword}
                             onChange={handleModalChange}
                         />
                         <input
@@ -262,6 +326,26 @@ function ElectionsPage() {
                     </div>
                 </div>
             )}
+
+            {showPasswordModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h3>Enter Password to Access Election</h3>
+                        <input
+                            type="password"
+                            placeholder="Election password"
+                            value={passwordInput}
+                            onChange={(e) => setPasswordInput(e.target.value)}
+                        />
+                        {passwordError && <p style={{ color: 'red' }}>{passwordError}</p>}
+                        <div className="modal-buttons">
+                            <button onClick={handlePasswordSubmit}>Submit</button>
+                            <button onClick={() => setShowPasswordModal(false)}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </>
     );
 }

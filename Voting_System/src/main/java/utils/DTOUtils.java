@@ -56,6 +56,7 @@ public class DTOUtils {
         return new ElectionDTO(
                 election.getElectionId(),
                 election.getElectionName(),
+                election.getElectionPassword(),
                 election.getStartDate(),
                 election.getEndDate(),
                 election.getElectionVotes(),
@@ -115,6 +116,7 @@ public class DTOUtils {
         Election election = new Election();
         election.setElectionId(electionDTO.getElectionId());
         election.setElectionName(electionDTO.getElectionName());
+        election.setElectionPassword(null); //don't expose
         election.setStartDate(electionDTO.getStartDate());
         election.setEndDate(electionDTO.getEndDate());
         election.setElectionVotes(electionDTO.getElectionVotes());

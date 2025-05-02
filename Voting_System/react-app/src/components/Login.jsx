@@ -1,11 +1,16 @@
 import React, { useState, useContext } from 'react';
 import "../styles/Login.css";
 import { VoterContext } from '../context/VoterContext';
+import { Link } from "react-router-dom"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 function Login() {
     const { setVoterId, setVoterToken } = useContext(VoterContext);
     const [voterEmail, setVoterEmail] = useState('');
     const [voterPassword, setVoterPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -42,27 +47,39 @@ function Login() {
     return (
         <div className="login-container">
             <form onSubmit={handleLogin}>
+
                 <h1>Login</h1>
                 <div>
-                    <label htmlFor="voterEmail">Email:</label>
                     <input
                         type="text"
                         id="voterEmail"
                         value={voterEmail}
+                        placeholder= "Email"
                         onChange={(e) => setVoterEmail(e.target.value)}
                     />
                 </div>
-                <div>
-                    <label htmlFor="voterPassword">Password:</label>
+                <div className="password-wrapper">
                     <input
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         id="voterPassword"
+                        placeholder="Password"
                         value={voterPassword}
                         onChange={(e) => setVoterPassword(e.target.value)}
                     />
+                    <FontAwesomeIcon
+                        icon={showPassword ? faEyeSlash : faEye}
+                        className="password-toggle"
+                        onClick={() => setShowPassword(!showPassword)}
+                    />
                 </div>
+
                 <button type="submit">Login</button>
+                <p className="register-link">
+                    Don’t have an account? <Link to="/register">Register here</Link>
+                </p>
             </form>
+
+
         </div>
     );
 }

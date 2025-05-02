@@ -7,6 +7,7 @@ import dto.ElectionDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.web.bind.annotation.*;
 import service.BallotService;
 import service.CandidateService;
@@ -128,5 +129,34 @@ public class ElectionController {
         long totalVotes = ballotService.countByElection_ElectionId(electionId);
         return ResponseEntity.ok(totalVotes);
     }
+
+    @PostMapping("/verify-password")
+    public ResponseEntity<?> verifyElectionPassword(@RequestBody Map<String, String> payload) {
+        UUID electionId = UUID.fromString(payload.get("electionId"));
+        String providedPassword = payload.get("password");
+
+        Optional<Election> election = electionService.getElectionById(electionId);
+
+        if (election.get().getElectionPassword() != null) {
+            boolean matches = BCrypt.checkpw(providedPassword, election.get().getElectionPassword());
+            if (!matches) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("error", "Invalid election password."));
+            }
+        }
+
+        return ResponseEntity.ok(DTOUtils.toElectionDTO(election.orElse(null)));
+    }
+
+    @PutMapping("/{electionId}")
+    public ResponseEntity<ElectionDTO> updateElection(
+            @PathVariable UUID electionId,
+            @RequestBody Election updatedData) {
+
+        Election updated = electionService.updateElection(electionId, updatedData);
+        return ResponseEntity.ok(DTOUtils.toElectionDTO(updated));
+    }
+
+
 
 }
