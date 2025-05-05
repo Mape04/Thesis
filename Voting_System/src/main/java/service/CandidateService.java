@@ -3,12 +3,15 @@ package service;
 import domain.Candidate;
 import dto.CandidateDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import repository.CandidateRepository;
+import utils.DTOUtils;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class CandidateService {
@@ -52,5 +55,10 @@ public class CandidateService {
 
         return candidateRepository.save(candidate);
     }
+
+    public List<Candidate> getTopNCandidates(UUID electionId, int n) {
+        return candidateRepository.findTopNCandidatesByElectionId(electionId, PageRequest.of(0, n));
+    }
+
 
 }

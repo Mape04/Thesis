@@ -1,8 +1,9 @@
 package dto;
 
+import domain.ElectionType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -17,5 +18,9 @@ public class ElectionDTO {
     private Integer electionVotes;
     private String electionDescription;
     private Integer nrVotesPerVoter;
+    private ElectionType electionType;
     private UUID electionAuthorityId;
+    private LocalDateTime runoffStartDate;
+    private LocalDateTime runoffEndDate;
+    private UUID runoffElectionId;
 }

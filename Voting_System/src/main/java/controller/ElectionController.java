@@ -33,7 +33,7 @@ public class ElectionController {
     @PostMapping("/{authorityId}")
     public ResponseEntity<ElectionDTO> createElection(
             @PathVariable UUID authorityId,
-            @RequestBody Election electionData) {
+            @RequestBody ElectionDTO electionData) {
 
         Election createdElection = electionService.createElection(authorityId, electionData);
         ElectionDTO response = DTOUtils.toElectionDTO(createdElection);

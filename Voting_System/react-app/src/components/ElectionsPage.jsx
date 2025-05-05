@@ -24,6 +24,9 @@ function ElectionsPage() {
         startDate: '',
         endDate: '',
         nrVotesPerVoter: '',
+        electionType: '',
+        runOffStartDate: '',
+        runOffEndDate: '',
         candidates: [{ name: '', party: '' }]
     });
 
@@ -165,6 +168,7 @@ function ElectionsPage() {
             const authorityData = await authorityResponse.json();
             const electionAuthorityId = authorityData.electionAuthorityId;
 
+
             // 🔥 Step 2: Create Election
             const electionResponse = await fetch(`http://localhost:8080/api/elections/${electionAuthorityId}`, {
                 method: "POST",
@@ -176,8 +180,12 @@ function ElectionsPage() {
                     endDate: newElection.endDate,
                     electionVotes: 0,
                     nrVotesPerVoter: parseInt(newElection.nrVotesPerVoter),
-                    electionDescription: "Custom created election"
-
+                    electionType: newElection.electionType,
+                    electionDescription: "Custom created election",
+                    ...(newElection.electionType === "TOP_TWO_RUNOFF" && {
+                        runoffStartDate: newElection.runoffStartDate,
+                        runoffEndDate: newElection.runoffEndDate
+                    })
                 })
             });
 
@@ -291,13 +299,56 @@ function ElectionsPage() {
                             value={newElection.endDate}
                             onChange={handleModalChange}
                         />
-                        <input
-                            type="number"
-                            name="nrVotesPerVoter"
-                            placeholder="Votes per Voter"
-                            value={newElection.nrVotesPerVoter}
-                            onChange={handleModalChange}
-                        />
+                        <select
+                            name="electionType"
+                            value={newElection.electionType}
+                            onChange={(e) => {
+                                const type = e.target.value;
+                                setNewElection(prev => ({
+                                    ...prev,
+                                    electionType: type,
+                                    nrVotesPerVoter: type === "POLL" ? 0 : type === "TOP_TWO_RUNOFF" ? 1 : prev.nrVotesPerVoter
+                                }));
+                            }}
+                        >
+                            <option value="POLL">POLL</option>
+                            <option value="STANDARD">STANDARD</option>
+                            <option value="TOP_TWO_RUNOFF">TOP_TWO_RUNOFF</option>
+                        </select>
+
+                        {newElection.electionType === "STANDARD" && (
+                            <input
+                                type="number"
+                                name="nrVotesPerVoter"
+                                placeholder="Votes per Voter"
+                                value={newElection.nrVotesPerVoter}
+                                onChange={(e) =>
+                                    setNewElection(prev => ({
+                                        ...prev,
+                                        nrVotesPerVoter: parseInt(e.target.value)
+                                    }))
+                                }
+                            />
+                        )}
+
+                        {newElection.electionType === "TOP_TWO_RUNOFF" && (
+                            <>
+                                <input
+                                    type="datetime-local"
+                                    name="runoffStartDate"
+                                    value={newElection.runoffStartDate}
+                                    onChange={handleModalChange}
+                                />
+                                <input
+                                    type="datetime-local"
+                                    name="runoffEndDate"
+                                    value={newElection.runoffEndDate}
+                                    onChange={handleModalChange}
+                                />
+                            </>
+                        )}
+
+
 
                         <h3>Candidates</h3>
                         {newElection.candidates.map((candidate, index) => (

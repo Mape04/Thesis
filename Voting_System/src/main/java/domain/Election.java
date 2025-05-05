@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +35,17 @@ public class Election {
 
     private Integer nrVotesPerVoter;
 
+    @Enumerated(EnumType.STRING)
+    private ElectionType electionType;
+
+    // 🔥 Runoff-related fields
+    private LocalDateTime runoffStartDate;
+    private LocalDateTime runoffEndDate;
+
+    @OneToOne
+    @JoinColumn(name = "runoff_election_id")
+    private Election runoffElection;
+
     @OneToMany(mappedBy = "election", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Ballot> ballots;
 
@@ -54,6 +64,10 @@ public class Election {
                 ", electionDescription='" + electionDescription + '\'' +
                 ", electionVotes=" + electionVotes + '\'' +
                 ", nrVotesPerVoter=" + nrVotesPerVoter +
+                ", electionType=" + electionType + '\'' +
+                ", linkElectionId=" + runoffElection.electionId + '\'' +
+                ", runOffStartDate=" + runoffStartDate + '\'' +
+                ", runOffEndDate=" + runoffEndDate + '\'' +
                 ", electionAuthority=" + electionAuthority +
                 '}';
     }

@@ -39,6 +39,7 @@ public class DTOUtils {
                 candidate.getCandidateId(),
                 candidate.getCandidateName(),
                 candidate.getCandidateParty(),
+                candidate.getNrOfVotes(),
                 candidate.getElection().getElectionId()
         );
     }
@@ -62,7 +63,11 @@ public class DTOUtils {
                 election.getElectionVotes(),
                 election.getElectionDescription(),
                 election.getNrVotesPerVoter(),
-                election.getElectionAuthority() != null ? election.getElectionAuthority().getElectionAuthorityId() : null
+                election.getElectionType(),
+                election.getElectionAuthority() != null ? election.getElectionAuthority().getElectionAuthorityId() : null,
+                election.getRunoffStartDate(),
+                election.getRunoffEndDate(),
+                election.getRunoffElection() !=null ? election.getRunoffElection().getElectionId() : null
         );
     }
 
@@ -106,6 +111,7 @@ public class DTOUtils {
         candidate.setCandidateId(candidateDTO.getCandidateId());
         candidate.setCandidateName(candidateDTO.getCandidateName());
         candidate.setCandidateParty(candidateDTO.getCandidateParty());
+        candidate.setNrOfVotes(candidateDTO.getNrOfVotes());
         candidate.setElection(election);
         return candidate;
     }
@@ -124,6 +130,10 @@ public class DTOUtils {
         election.setNrVotesPerVoter(electionDTO.getNrVotesPerVoter());
         // Assuming you have a method to fetch ElectionAuthority by ID
         // election.setElectionAuthority(findElectionAuthorityById(electionDTO.getElectionAuthorityId()));
+        election.setElectionType(electionDTO.getElectionType());
+        election.setRunoffStartDate(electionDTO.getRunoffStartDate());
+        election.setRunoffEndDate(electionDTO.getRunoffEndDate());
+        //election.setRunoffElection(); i need a find method or something
         return election;
     }
 

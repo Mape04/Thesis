@@ -64,9 +64,15 @@ public class VoteService {
             ballotRepository.save(ballot);
 
             Set<Candidate> selectedCandidates = voteDTO.getCandidateIds().stream()
-                    .map(candidateId -> candidateRepository.findById(candidateId)
-                            .orElseThrow(() -> new IllegalArgumentException("Candidate not found: " + candidateId)))
+                    .map(candidateId -> {
+                        Candidate candidate = candidateRepository.findById(candidateId)
+                                .orElseThrow(() -> new IllegalArgumentException("Candidate not found: " + candidateId));
+                        candidate.setNrOfVotes(candidate.getNrOfVotes() + 1); // ✅ Increment vote count
+                        candidateRepository.save(candidate); // ✅ Save updated candidate
+                        return candidate;
+                    })
                     .collect(Collectors.toSet());
+
 
             Vote vote = new Vote();
             vote.setBallot(ballot);
@@ -86,7 +92,6 @@ public class VoteService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-
 
     public long countVotesByCandidate(UUID candidateId) {
         return voteRepository.countVotesByCandidate(candidateId);

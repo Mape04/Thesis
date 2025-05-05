@@ -18,6 +18,9 @@ public class Candidate {
     private String candidateName;
     private String candidateParty;
 
+    @Column(nullable = false)
+    private int nrOfVotes = 0;
+
     @ManyToOne
     @JoinColumn(name = "election_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE) // 🔥 Add this!
