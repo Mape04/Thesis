@@ -124,8 +124,20 @@ function ElectionsPage() {
 
 
     const handleCreateElectionClick = () => {
+        setNewElection({
+            electionName: '',
+            electionPassword: '',
+            startDate: '',
+            endDate: '',
+            nrVotesPerVoter: 0,
+            electionType: 'POLL',
+            runOffStartDate: '',
+            runOffEndDate: '',
+            candidates: [{ name: '', party: '' }]
+        });
         setShowCreateModal(true);
     };
+
 
     const handleModalChange = (e) => {
         const { name, value } = e.target;
@@ -155,66 +167,104 @@ function ElectionsPage() {
 
     const submitNewElection = async () => {
         try {
-            // 🔥 Step 1: Create ElectionAuthority (backend should create based on voterId!)
+            console.log("🔥 Step 1: Creating ElectionAuthority");
+            console.log("Voter Info:", voterInfo);
+
+            const authorityPayload = {
+                authorityName: voterInfo.voterName,
+                authorityEmail: voterInfo.voterEmail
+            };
+            console.log("Authority Payload:", authorityPayload);
+
             const authorityResponse = await fetch("http://localhost:8080/api/election-authorities", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    authorityName: voterInfo.voterName,
-                    authorityEmail: voterInfo.voterEmail
-                })
+                body: JSON.stringify(authorityPayload)
             });
 
+            if (!authorityResponse.ok) {
+                const errText = await authorityResponse.text();
+                console.error("❌ Failed to create authority:", errText);
+                alert("Failed to create authority.");
+                return;
+            }
+
             const authorityData = await authorityResponse.json();
+            console.log("✅ Created Authority:", authorityData);
+
             const electionAuthorityId = authorityData.electionAuthorityId;
 
-
             // 🔥 Step 2: Create Election
+            const electionPayload = {
+                electionName: newElection.electionName,
+                electionPassword: newElection.electionPassword || null,
+                startDate: newElection.startDate,
+                endDate: newElection.endDate,
+                electionVotes: 0,
+                nrVotesPerVoter: newElection.electionType === "POLL" ? 0 : parseInt(newElection.nrVotesPerVoter || 0), // fallback for safety
+                electionType: newElection.electionType || "POLL",
+                electionDescription: "Custom created election",
+                runoffStartDate: newElection.electionType === "TOP_TWO_RUNOFF" ? newElection.runoffStartDate : null,
+                runoffEndDate: newElection.electionType === "TOP_TWO_RUNOFF" ? newElection.runoffEndDate : null
+            };
+            console.log("📝 Election Payload:", electionPayload);
+            console.log("Election Payload (JSON):", JSON.stringify(electionPayload, null, 2));
+
+
             const electionResponse = await fetch(`http://localhost:8080/api/elections/${electionAuthorityId}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    electionName: newElection.electionName,
-                    electionPassword: newElection.electionPassword || null, //send null if empty
-                    startDate: newElection.startDate,
-                    endDate: newElection.endDate,
-                    electionVotes: 0,
-                    nrVotesPerVoter: parseInt(newElection.nrVotesPerVoter),
-                    electionType: newElection.electionType,
-                    electionDescription: "Custom created election",
-                    ...(newElection.electionType === "TOP_TWO_RUNOFF" && {
-                        runoffStartDate: newElection.runoffStartDate,
-                        runoffEndDate: newElection.runoffEndDate
-                    })
-                })
+                body: JSON.stringify(electionPayload)
             });
 
+            if (!electionResponse.ok) {
+                const errText = await electionResponse.text();
+                console.error("❌ Failed to create election:", errText);
+                alert("Failed to create election.");
+                return;
+            }
+
             const createdElection = await electionResponse.json();
+            console.log("✅ Created Election:", createdElection);
 
             // 🔥 Step 3: Add Candidates
             for (const candidate of newElection.candidates) {
                 if (candidate.name.trim() !== '') {
-                    await fetch("http://localhost:8080/api/candidates", {
+                    const candidatePayload = {
+                        candidateName: candidate.name,
+                        candidateParty: candidate.party,
+                        candidateElectionId: createdElection.electionId
+                    };
+                    console.log("👤 Adding Candidate:", candidatePayload);
+
+                    const candidateResponse = await fetch("http://localhost:8080/api/candidates", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            candidateName: candidate.name,
-                            candidateParty: candidate.party,
-                            candidateElectionId: createdElection.electionId
-                        })
+                        body: JSON.stringify(candidatePayload)
                     });
+
+                    if (!candidateResponse.ok) {
+                        const errText = await candidateResponse.text();
+                        console.error(`❌ Failed to create candidate "${candidate.name}":`, errText);
+                        alert(`Failed to create candidate "${candidate.name}"`);
+                        return;
+                    }
+
+                    const savedCandidate = await candidateResponse.json();
+                    console.log("✅ Created Candidate:", savedCandidate);
                 }
             }
 
-            alert("Election created successfully!");
+            alert("🎉 Election created successfully!");
             setShowCreateModal(false);
-            window.location.reload(); // 🔥 Reload to refresh elections list
+            window.location.reload();
 
         } catch (error) {
-            console.error("Error creating election:", error);
-            alert("Error creating election.");
+            console.error("❌ Error creating election:", error);
+            alert("Unexpected error occurred during election creation.");
         }
     };
+
 
     return (
         <>
@@ -301,7 +351,7 @@ function ElectionsPage() {
                         />
                         <select
                             name="electionType"
-                            value={newElection.electionType}
+                            value={newElection.electionType || "POLL"}
                             onChange={(e) => {
                                 const type = e.target.value;
                                 setNewElection(prev => ({
@@ -315,6 +365,7 @@ function ElectionsPage() {
                             <option value="STANDARD">STANDARD</option>
                             <option value="TOP_TWO_RUNOFF">TOP_TWO_RUNOFF</option>
                         </select>
+
 
                         {newElection.electionType === "STANDARD" && (
                             <input
@@ -347,7 +398,6 @@ function ElectionsPage() {
                                 />
                             </>
                         )}
-
 
 
                         <h3>Candidates</h3>

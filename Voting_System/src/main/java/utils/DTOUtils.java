@@ -3,12 +3,14 @@ package utils;
 import domain.*;
 import dto.*;
 import lombok.AllArgsConstructor;
+import service.VoterService;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
 public class DTOUtils {
-
+    private static VoterService voterService;
 
     // Voter to DTO
     public static VoterDTO toVoterDTO(Voter voter) {
@@ -93,6 +95,15 @@ public class DTOUtils {
         return voter;
     }
 
+    public static Voter toVoter(VoterRegistrationDTO voterRegistrationDTO) {
+        if (voterRegistrationDTO == null) return null;
+        Voter voter = new Voter();
+        voter.setVoterName(voterRegistrationDTO.getVoterName());
+        voter.setVoterEmail(voterRegistrationDTO.getVoterEmail());
+        voter.setVoterPassword(voterRegistrationDTO.getVoterPassword());
+        voter.setVoterIsRegistered(false);
+        return voter;
+    }
     // BallotDTO to Ballot
     public static Ballot toBallot(BallotDTO ballotDTO) {
         if (ballotDTO == null) return null;
