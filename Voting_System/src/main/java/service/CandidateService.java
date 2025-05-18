@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import repository.CandidateRepository;
 import utils.DTOUtils;
+import validators.CandidateValidator;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,14 +17,17 @@ import java.util.stream.Collectors;
 @Service
 public class CandidateService {
     private final CandidateRepository candidateRepository;
+    private final CandidateValidator candidateValidator;
 
     @Autowired
-    public CandidateService(CandidateRepository candidateRepository) {
+    public CandidateService(CandidateRepository candidateRepository, CandidateValidator candidateValidator) {
         this.candidateRepository = candidateRepository;
+        this.candidateValidator = candidateValidator;
     }
 
     // Create or update a Candidate
     public Candidate saveCandidate(Candidate candidate) {
+        candidateValidator.validate(candidate);
         return candidateRepository.save(candidate);
     }
 
@@ -60,5 +64,8 @@ public class CandidateService {
         return candidateRepository.findTopNCandidatesByElectionId(electionId, PageRequest.of(0, n));
     }
 
+    public void validateCandidate(Candidate candidate) {
+        candidateValidator.validate(candidate);
+    }
 
 }

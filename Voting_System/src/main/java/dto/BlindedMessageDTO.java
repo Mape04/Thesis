@@ -11,6 +11,6 @@ import java.util.UUID;
 @NoArgsConstructor
 public class BlindedMessageDTO {
     private UUID electionId;
-    private String blindedMessage;  // 🔥 String, not array
-    private UUID voterId;  // 🔥 ADD THIS
+    private String blindedMessage;
+    private UUID voterId;
 }

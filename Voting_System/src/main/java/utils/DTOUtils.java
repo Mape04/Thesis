@@ -3,14 +3,19 @@ package utils;
 import domain.*;
 import dto.*;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
+import service.ElectionService;
 import service.VoterService;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
+@Component
 public class DTOUtils {
-    private static VoterService voterService;
+    private final VoterService voterService;
+    private final ElectionService electionService;
 
     // Voter to DTO
     public static VoterDTO toVoterDTO(Voter voter) {
@@ -156,5 +161,59 @@ public class DTOUtils {
         authority.setAuthorityName(authorityDTO.getAuthorityName());
         authority.setAuthorityEmail(authorityDTO.getAuthorityEmail());
         return authority;
+    }
+
+    public BlindCredential toBlindCredential(BlindCredentialDTO blindCredentialDTO) {
+        if (blindCredentialDTO == null) return null;
+
+        BlindCredential blindCredential = new BlindCredential();
+
+        Optional<Voter> voterOptional = voterService.getVoterById(blindCredentialDTO.getVoterId());
+        if (voterOptional.isEmpty()) {
+            throw new IllegalArgumentException("Voter not found with ID: " + blindCredentialDTO.getVoterId());
+        }
+        blindCredential.setVoter(voterOptional.get());
+
+        Optional<Election> electionOptional = electionService.getElectionById(blindCredentialDTO.getElectionId());
+        if (electionOptional.isEmpty()) {
+            throw new IllegalArgumentException("Election not found with ID: " + blindCredentialDTO.getElectionId());
+        }
+        blindCredential.setElection(electionOptional.get());
+
+        Optional<ElectionAuthority> electionAuthorityoptional = Optional.ofNullable(electionOptional.get().getElectionAuthority());
+        if (electionAuthorityoptional.isEmpty()) {
+            throw new IllegalArgumentException("Election Authority not found!");
+        }
+        blindCredential.setElectionAuthority(electionAuthorityoptional.get());
+
+        blindCredential.setSignedToken(blindCredentialDTO.getVoterToken());
+
+        return blindCredential;
+    }
+
+    public BlindCredential toBlindCredential(BlindedMessageDTO blindedMessageDTO, String blindedMessage){
+        if (blindedMessageDTO == null) return null;
+
+        BlindCredential blindCredential = new BlindCredential();
+        Optional<Voter> voterOptional = voterService.getVoterById(blindedMessageDTO.getVoterId());
+        if (voterOptional.isEmpty()) {
+            throw new IllegalArgumentException("Voter not found with ID: " + blindedMessageDTO.getVoterId());
+        }
+        blindCredential.setVoter(voterOptional.get());
+
+        Optional<Election> electionOptional = electionService.getElectionById(blindedMessageDTO.getElectionId());
+        if (electionOptional.isEmpty()) {
+            throw new IllegalArgumentException("Election not found with ID: " + blindedMessageDTO.getElectionId());
+        }
+        blindCredential.setElection(electionOptional.get());
+
+        Optional<ElectionAuthority> electionAuthorityoptional = Optional.ofNullable(electionOptional.get().getElectionAuthority());
+        if (electionAuthorityoptional.isEmpty()) {
+            throw new IllegalArgumentException("Election Authority not found!");
+        }
+        blindCredential.setElectionAuthority(electionAuthorityoptional.get());
+        blindCredential.setSignedToken(blindedMessage);
+
+        return blindCredential;
     }
 }

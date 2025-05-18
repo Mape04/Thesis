@@ -4,10 +4,13 @@ import domain.Election;
 import dto.CandidateDTO;
 import domain.Candidate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import service.CandidateService;
 import service.ElectionService;
+import utils.DTOUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -34,7 +37,7 @@ public class CandidateController {
     public ResponseEntity<?> createCandidate(@RequestBody CandidateDTO candidateDTO) {
         Optional<Election> election = electionService.getElectionById(candidateDTO.getCandidateElectionId());
         if (election.isEmpty()) {
-            return ResponseEntity.status(400).body(Map.of("error", "Election not found"));
+            return ResponseEntity.status(400).body(Map.of("message", "Election not found"));
         }
 
         Candidate candidate = utils.DTOUtils.toCandidate(candidateDTO, election.get());
@@ -51,9 +54,6 @@ public class CandidateController {
         Candidate updated = candidateService.updateCandidate(id, dto);
         return ResponseEntity.ok(toCandidateDTO(updated));
     }
-
-
-
 
     @GetMapping
     public ResponseEntity<List<CandidateDTO>> getAllCandidates() {

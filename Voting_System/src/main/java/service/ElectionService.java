@@ -13,6 +13,7 @@ import repository.ElectionAuthorityRepository;
 import repository.ElectionRepository;
 import repository.VoterRepository;
 import utils.DTOUtils;
+import validators.ElectionValidator;
 
 import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
@@ -27,12 +28,14 @@ public class ElectionService {
     private final ElectionRepository electionRepository;
     private final ElectionAuthorityRepository electionAuthorityRepository;
     private final CandidateRepository candidateRepository;
+    private final ElectionValidator electionValidator;
 
     @Autowired
-    public ElectionService(ElectionRepository electionRepository, ElectionAuthorityRepository electionAuthorityRepository, CandidateRepository candidateRepository) {
+    public ElectionService(ElectionRepository electionRepository, ElectionAuthorityRepository electionAuthorityRepository, CandidateRepository candidateRepository, ElectionValidator electionValidator) {
         this.electionRepository = electionRepository;
         this.electionAuthorityRepository = electionAuthorityRepository;
         this.candidateRepository = candidateRepository;
+        this.electionValidator = electionValidator;
     }
 
     public Election createElection(UUID authorityId, ElectionDTO electionData) {
@@ -65,6 +68,7 @@ public class ElectionService {
             newElection.setRunoffEndDate(electionData.getRunoffEndDate());
         }
 
+        electionValidator.validate(newElection);
         return electionRepository.save(newElection);
     }
 

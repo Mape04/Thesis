@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import service.ElectionAuthorityService;
 import service.EncryptionService;
 import service.VoterService;
+import utils.DTOUtils;
 
 import java.util.Map;
 import java.util.Optional;
@@ -42,11 +43,7 @@ public class AuthController {
             return ResponseEntity.status(409).body(Map.of("error", "Email already in use"));
         }
 
-        Voter voter = new Voter();
-        voter.setVoterName(voterDTO.getVoterName());
-        voter.setVoterEmail(voterDTO.getVoterEmail());
-        voter.setVoterPassword(voterDTO.getVoterPassword());
-        voter.setVoterIsRegistered(false);
+        Voter voter = DTOUtils.toVoter(voterDTO);
 
         Voter savedVoter = voterService.saveVoter(voter);
 

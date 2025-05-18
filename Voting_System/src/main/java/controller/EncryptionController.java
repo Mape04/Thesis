@@ -12,6 +12,7 @@ import service.BlindCredentialService;
 import service.ElectionService;
 import service.EncryptionService;
 import service.VoterService;
+import utils.DTOUtils;
 
 import java.math.BigInteger;
 import java.security.KeyFactory;
@@ -29,6 +30,8 @@ public class EncryptionController {
     private RsaKeyRepository rsaKeyRepository;  // Repository to fetch RSA keys
     private ElectionService electionService;
     private VoterService voterService;
+    @Autowired
+    private DTOUtils dtoUtils;
 
     @Autowired
     public EncryptionController(RsaKeyRepository rsaKeyRepository, EncryptionService encryptionService, ElectionService electionService, VoterService voterService, BlindCredentialService blindCredentialService) {
@@ -46,25 +49,8 @@ public class EncryptionController {
 
             String signedBlindedMessage = encryptionService.signBlindedMessage(blindedMessage, request.getElectionId());
 
-            Voter voter = voterService.getVoterById(request.getVoterId())
-                    .orElseThrow(() -> new IllegalArgumentException("Voter not found."));
-
-            Election election = electionService.getElectionById(request.getElectionId())
-                    .orElseThrow(() -> new IllegalArgumentException("Election not found"));
-
-            // 🔥 Fetch the ElectionAuthority from the Election
-            ElectionAuthority authority = election.getElectionAuthority();
-            if (authority == null) {
-                throw new IllegalArgumentException("Election has no ElectionAuthority linked.");
-            }
-
-            // 🔥 Save BlindCredential
-            BlindCredential blindCredential = new BlindCredential();
-            blindCredential.setVoter(voter);
-            blindCredential.setElection(election);
-            blindCredential.setElectionAuthority(authority); // 🔥 VERY IMPORTANT
-            blindCredential.setSignedToken(signedBlindedMessage);
-
+            //Save BlindCredential from BlindedMessageDTO
+            BlindCredential blindCredential = dtoUtils.toBlindCredential(request, signedBlindedMessage);
             blindCredentialService.save(blindCredential);
 
             return ResponseEntity.ok(signedBlindedMessage);

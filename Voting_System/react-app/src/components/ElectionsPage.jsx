@@ -218,11 +218,20 @@ function ElectionsPage() {
             });
 
             if (!electionResponse.ok) {
-                const errText = await electionResponse.text();
-                console.error("❌ Failed to create election:", errText);
-                alert("Failed to create election.");
+                let errorMessage = "Unknown error";
+                try {
+                    const errJson = await electionResponse.json();
+                    errorMessage = errJson?.message || errorMessage;
+                } catch (e) {
+                    const fallback = await electionResponse.text();
+                    errorMessage = fallback || errorMessage;
+                }
+
+                console.error("❌ Failed to create election:", errorMessage);
+                alert(`❌ Failed to create election: ${errorMessage}`);
                 return;
             }
+
 
             const createdElection = await electionResponse.json();
             console.log("✅ Created Election:", createdElection);
@@ -235,7 +244,6 @@ function ElectionsPage() {
                         candidateParty: candidate.party,
                         candidateElectionId: createdElection.electionId
                     };
-                    console.log("👤 Adding Candidate:", candidatePayload);
 
                     const candidateResponse = await fetch("http://localhost:8080/api/candidates", {
                         method: "POST",
@@ -245,15 +253,21 @@ function ElectionsPage() {
 
                     if (!candidateResponse.ok) {
                         const errText = await candidateResponse.text();
-                        console.error(`❌ Failed to create candidate "${candidate.name}":`, errText);
-                        alert(`Failed to create candidate "${candidate.name}"`);
+                        const errorMessage = JSON.parse(errText)?.message || errText;
+
+                        console.error(`❌ Failed to create candidate "${candidate.name}":`, errorMessage);
+
+                        // ❌ Cleanup: delete the already-created election
+                        await fetch(`http://localhost:8080/api/elections/${createdElection.electionId}`, {
+                            method: "DELETE"
+                        });
+
+                        alert(`❌ Invalid candidate "${candidate.name}": ${errorMessage}\nElection has been deleted.`);
                         return;
                     }
-
-                    const savedCandidate = await candidateResponse.json();
-                    console.log("✅ Created Candidate:", savedCandidate);
                 }
             }
+
 
             alert("🎉 Election created successfully!");
             setShowCreateModal(false);

@@ -39,9 +39,9 @@ public class Vote {
     public String toString() {
         return "Vote{" +
                 "voteId='" + voteId + '\'' +
-                ", ballot=" + ballot + '\'' +
+                ", ballotId=" + (ballot != null ? ballot.getBallotId() : null) + '\'' +
                 ", chosenCandidate=" + selectedCandidates + '\'' +
-                ", voter=" + voter +
+                ", voterId=" + (voter != null ? voter.getVoterId() : null) +
                 '}';
     }
 }

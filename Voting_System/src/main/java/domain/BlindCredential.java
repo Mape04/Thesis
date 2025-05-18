@@ -38,9 +38,9 @@ public class BlindCredential {
     public String toString() {
         return "BlindCredential{" +
                 "blindCredentialId=" + blindCredentialId +
-                ", voter=" + voter +
-                ", electionAuthority=" + electionAuthority +
-                ", election=" + election +
+                ", voterId=" + (voter != null ? voter.getVoterId() : null) +
+                ", electionAuthorityId=" + (electionAuthority != null ? electionAuthority.getElectionAuthorityId() : null) +
+                ", electionId=" + (election != null ? election.getElectionId() : null) +
                 ", signedToken='" + signedToken + '\'' +
                 '}';
     }

@@ -7,6 +7,7 @@ import domain.Voter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import repository.VoterRepository;
+import validators.VoterValidator;
 
 import java.util.Base64;
 import java.util.List;
@@ -19,23 +20,19 @@ public class VoterService {
     private final VoterRepository voterRepository;
 
     private final PasswordEncoder passwordEncoder;
+    private final VoterValidator voterValidator;
 
     @Autowired
-    public VoterService(VoterRepository voterRepository) {
+    public VoterService(VoterRepository voterRepository, VoterValidator voterValidator) {
         this.voterRepository = voterRepository;
+        this.voterValidator = voterValidator;
         this.passwordEncoder = new BCryptPasswordEncoder(); // Initialize BCrypt
     }
 
     // Create or update a voter
     public Voter saveVoter(Voter voter) {
-        if (!voter.getVoterEmail().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
-            throw new IllegalArgumentException("Invalid email format.");
-        }
-
-        if (voter.getVoterPassword().length() < 8) {
-            throw new IllegalArgumentException("Password must be at least 8 characters.");
-        }
-
+        //Validating voter fields before submitting
+        voterValidator.validate(voter);
         voter.setVoterPassword(passwordEncoder.encode(voter.getVoterPassword()));
         return voterRepository.save(voter);
     }

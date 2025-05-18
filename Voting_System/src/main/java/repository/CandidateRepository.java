@@ -17,4 +17,6 @@ public interface CandidateRepository  extends JpaRepository<Candidate, UUID> {
     @Query("SELECT c FROM Candidate c WHERE c.election.electionId = :electionId ORDER BY c.nrOfVotes DESC")
     List<Candidate> findTopNCandidatesByElectionId(@Param("electionId") UUID electionId, Pageable pageable);
 
+    boolean existsByCandidateNameAndCandidatePartyAndElection_ElectionId(String name, String party, UUID electionId);
+
 }
