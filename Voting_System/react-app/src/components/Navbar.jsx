@@ -12,13 +12,20 @@ function Navbar() {
         navigate('/');
     };
 
+    const handleProfileClick = () => {
+        navigate('/profile');
+    };
+
     return (
         <nav className="navbar">
             <div className="navbar-left">
-                Electronic Voting System
+                <span className="navbar-title">Electronic Voting System</span>
             </div>
             <div className="navbar-right">
-                <button className="logout-button" onClick={handleLogout}>
+                <button className="nav-button profile-button" onClick={handleProfileClick}>
+                    Profile
+                </button>
+                <button className="nav-button logout-button" onClick={handleLogout}>
                     Logout
                 </button>
             </div>

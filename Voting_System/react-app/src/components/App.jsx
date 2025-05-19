@@ -7,6 +7,7 @@ import ElectionDetails from "../components/ElectionDetails";
 import LandingPage from "./LandingPage.jsx";
 import { VoterProvider, VoterContext } from '../context/VoterContext';
 import { useContext } from 'react';
+import Profile from "./Profile.jsx";
 
 function AppRoutes() {
     const { isLoggedIn } = useContext(VoterContext);
@@ -18,6 +19,7 @@ function AppRoutes() {
             <Route path="/register" element={<Registration />} />
             <Route path="/elections" element={isLoggedIn ? <ElectionsPage /> : <Navigate to="/" replace />} />
             <Route path="/election/:electionId" element={isLoggedIn ? <ElectionDetails /> : <Navigate to="/" replace />} />
+            <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate  to="/profile" replace /> }/>
         </Routes>
     );
 }

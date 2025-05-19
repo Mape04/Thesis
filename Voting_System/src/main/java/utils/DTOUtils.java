@@ -25,7 +25,8 @@ public class DTOUtils {
                 voter.getVoterName(),
                 voter.getVoterEmail(),
                 voter.getVoterPassword(),
-                voter.isVoterIsRegistered()
+                voter.isVoterIsRegistered(),
+                voter.getProfileImagePath()
         );
     }
 
@@ -97,6 +98,7 @@ public class DTOUtils {
         voter.setVoterEmail(voterDTO.getVoterEmail());
         voter.setVoterPassword(voterDTO.getVoterPassword());
         voter.setVoterIsRegistered(voterDTO.isVoterIsRegistered());
+        voter.setProfileImagePath(voterDTO.getProfileImagePath());
         return voter;
     }
 

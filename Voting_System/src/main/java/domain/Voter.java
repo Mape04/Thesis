@@ -26,6 +26,10 @@ public class Voter {
     @OneToMany(mappedBy = "voter", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Ballot> ballots = new HashSet<>(); // <-- Add this to track ballots
 
+    @Column(name = "profile_image_path")
+    private String profileImagePath;
+
+
     @Override
     public String toString() {
         return "Voter{" +
@@ -35,6 +39,7 @@ public class Voter {
                 ", voterPassword='" + voterPassword + '\'' +
                 ", voterIsRegistered=" + voterIsRegistered +
                 ", blindCredentialSet=" + blindCredentialSet +
+                ", profileImagePath='" + profileImagePath + '\'' +
                 '}';
     }
 }

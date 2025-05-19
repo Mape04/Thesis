@@ -13,4 +13,5 @@ public class VoterDTO {
     private String voterEmail;
     private String voterPassword;
     private boolean voterIsRegistered;
+    private String profileImagePath;
 }
