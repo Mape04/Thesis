@@ -88,19 +88,20 @@ public class VoterController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("{voterId}/elections/{electionId}/voted")
-    public ResponseEntity<Boolean> hasVoterVoted(
+    @GetMapping("{voterId}/elections/{electionId}/has-token-been-used")
+    public ResponseEntity<Boolean> hasTokenBeenUsed(
             @PathVariable UUID voterId,
             @PathVariable UUID electionId) {
 
         Voter voter = voterService.getVoterById(voterId)
                 .orElseThrow(() -> new RuntimeException("Voter not found"));
-        Election election = electionService.getElectionById(electionId)
-                .orElseThrow(() -> new RuntimeException("Election not found"));
 
-        long votes = voteService.countByVoterAndBallot_Election(voter, election);
-        return ResponseEntity.ok(votes > 0);
+        boolean tokenUsed = voter.getBlindCredentialSet().stream()
+                .anyMatch(cred -> cred.getElection().getElectionId().equals(electionId) && cred.isUsed());
+
+        return ResponseEntity.ok(tokenUsed);
     }
+
 
     @PostMapping("/{id}/upload-image")
     public ResponseEntity<?> uploadProfileImage(@PathVariable UUID id,

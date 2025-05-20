@@ -23,16 +23,19 @@ public class BlindCredential {
 
     @ManyToOne
     @JoinColumn(name = "election_authority_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE) // 🔥 Also add this
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private ElectionAuthority electionAuthority;
 
     @ManyToOne
     @JoinColumn(name = "election_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE) // 🔥 Add this
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Election election;
 
     @Column(name = "signed_token", columnDefinition = "TEXT", nullable = false)
-    private String signedToken; // This will store the signed blinded token
+    private String signedToken;
+
+    @Column(nullable = false)
+    private boolean used = false;  // ✅ New field to track usage
 
     @Override
     public String toString() {
@@ -42,6 +45,7 @@ public class BlindCredential {
                 ", electionAuthorityId=" + (electionAuthority != null ? electionAuthority.getElectionAuthorityId() : null) +
                 ", electionId=" + (election != null ? election.getElectionId() : null) +
                 ", signedToken='" + signedToken + '\'' +
+                ", used=" + used +  // ✅ include in debug output
                 '}';
     }
 }

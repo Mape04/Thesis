@@ -11,6 +11,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 public class Ballot {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID ballotId;
@@ -19,10 +20,8 @@ public class Ballot {
     @JoinColumn(name = "election_id", nullable = false)
     private Election election;
 
-    @ManyToOne
-    @JoinColumn(name = "voter_id", nullable = false)
-    private Voter voter;  // <-- Added this to link the voter who submitted this ballot.
-
+    // ❌ Removed voter link to preserve anonymity
+    // private Voter voter;
 
     @OneToMany(mappedBy = "ballot", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Vote> votes;
@@ -31,7 +30,7 @@ public class Ballot {
     public String toString() {
         return "Ballot{" +
                 "ballotId=" + ballotId +
-                ", voter=" + (voter != null ? voter.getVoterId() : "null") +
+                ", election=" + (election != null ? election.getElectionId() : "null") +
                 '}';
     }
 }

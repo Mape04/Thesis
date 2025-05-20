@@ -95,33 +95,14 @@ public class ElectionController {
         return ResponseEntity.ok(results);
     }
 
-    @GetMapping("{electionId}/final-results")
-    public ResponseEntity<Map<String, Double>> getFinalResults(@PathVariable UUID electionId) {
-        Election election = electionService.getElectionById(electionId)
-                .orElseThrow(() -> new RuntimeException("Election not found"));
-
-        // 🔥 Check if election ended
-        if (election.getEndDate().isAfter(LocalDateTime.now())) {
-            return ResponseEntity.badRequest().body(null); // 🔥 Election not ended yet
+    @GetMapping("/{electionId}/final-results")
+    public ResponseEntity<Map<UUID, Integer>> getFinalResults(@PathVariable UUID electionId) {
+        try {
+            Map<UUID, Integer> results = voteService.decryptAndTallyVotes(electionId);
+            return ResponseEntity.ok(results);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
-        List<Candidate> candidates = candidateService.findByElection_ElectionId(electionId);
-
-        Map<String, Long> results = new HashMap<>();
-        for (Candidate candidate : candidates) {
-            long votes = voteService.countVotesByCandidate(candidate.getCandidateId());
-            results.put(candidate.getCandidateName(), votes);
-        }
-
-        long totalVotes = results.values().stream().mapToLong(Long::longValue).sum();
-
-        Map<String, Double> percentages = new HashMap<>();
-        for (Map.Entry<String, Long> entry : results.entrySet()) {
-            double percent = totalVotes == 0 ? 0.0 : (entry.getValue() * 100.0) / totalVotes;
-            percentages.put(entry.getKey(), percent);
-        }
-
-        return ResponseEntity.ok(percentages);
     }
 
     @GetMapping("{electionId}/vote-count")
@@ -156,7 +137,6 @@ public class ElectionController {
         Election updated = electionService.updateElection(electionId, updatedData);
         return ResponseEntity.ok(DTOUtils.toElectionDTO(updated));
     }
-
 
 
 }

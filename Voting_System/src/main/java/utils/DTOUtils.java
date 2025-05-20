@@ -35,8 +35,7 @@ public class DTOUtils {
         if (ballot == null) return null;
         return new BallotDTO(
                 ballot.getBallotId(),
-                ballot.getElection() != null ? ballot.getElection().getElectionId() : null,
-                ballot.getVoter() != null ? ballot.getVoter().getVoterId() : null
+                ballot.getElection() != null ? ballot.getElection().getElectionId() : null
         );
     }
 

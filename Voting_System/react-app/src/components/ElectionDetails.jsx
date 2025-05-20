@@ -135,14 +135,12 @@ function ElectionDetails() {
         fetchTotalVotes();
 
         const checkIfVoted = async () => {
-            try {
-                const response = await fetch(`http://localhost:8080/api/voters/${voterId}/elections/${electionId}/voted`);
-                const voted = await response.json();
-                setHasVoted(voted);
-            } catch (error) {
-                console.error("Error checking if voted:", error);
-            }
+            const response = await fetch(`http://localhost:8080/api/voters/${voterId}/elections/${electionId}/has-token-been-used`);
+            const voted = await response.json();
+            setHasVoted(voted);
         };
+
+
 
         checkIfVoted();
 

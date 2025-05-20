@@ -12,9 +12,11 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 public class Voter {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID voterId;
+
     private String voterName;
     private String voterEmail;
     private String voterPassword;
@@ -23,12 +25,11 @@ public class Voter {
     @OneToMany(mappedBy = "voter", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<BlindCredential> blindCredentialSet = new HashSet<>();
 
-    @OneToMany(mappedBy = "voter", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Ballot> ballots = new HashSet<>(); // <-- Add this to track ballots
+    // ❌ Removed ballot tracking to ensure voter can't be traced to votes
+    // private Set<Ballot> ballots = new HashSet<>();
 
     @Column(name = "profile_image_path")
     private String profileImagePath;
-
 
     @Override
     public String toString() {

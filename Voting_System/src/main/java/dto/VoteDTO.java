@@ -11,8 +11,6 @@ import java.util.UUID;
 public class VoteDTO {
     private UUID voterId;
     private UUID electionId;
-    private String voterToken;  // Blind token provided by the voter
-    private String ballotToken;  // Token for the ballot
-    private Set<UUID> candidateIds;  // List of candidate IDs chosen by the voter
-    private byte[] blindedMessage;  // The blinded message to be signed by the Election Authority
+    private String voterToken;
+    private Set<UUID> candidateIds;
 }

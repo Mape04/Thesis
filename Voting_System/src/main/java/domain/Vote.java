@@ -6,12 +6,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 public class Vote {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String voteId;
@@ -26,22 +28,20 @@ public class Vote {
             joinColumns = @JoinColumn(name = "vote_id"),
             inverseJoinColumns = @JoinColumn(name = "candidate_id")
     )
-    private Set<Candidate> selectedCandidates;  // <-- Changed to Set for multiple candidates!
+    private Set<Candidate> selectedCandidates;
 
-    @ManyToOne
-    @JoinColumn(name = "voter_id", nullable = false)
-    private Voter voter;
+    @Lob
+    @Column(name = "encrypted_vote", nullable = false)
+    private byte[] encryptedVote; // Store vote anonymously
 
-    @Column(name = "voter_signed_token", columnDefinition = "TEXT", nullable = false)
-    private String voterSignedToken; // Unique voter authentication token
+    // Remove voter reference and signed token to ensure anonymity
 
     @Override
     public String toString() {
         return "Vote{" +
                 "voteId='" + voteId + '\'' +
-                ", ballotId=" + (ballot != null ? ballot.getBallotId() : null) + '\'' +
-                ", chosenCandidate=" + selectedCandidates + '\'' +
-                ", voterId=" + (voter != null ? voter.getVoterId() : null) +
+                ", ballotId=" + (ballot != null ? ballot.getBallotId() : null) +
+                ", selectedCandidates=" + selectedCandidates +
                 '}';
     }
 }

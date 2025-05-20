@@ -9,5 +9,5 @@ import java.util.UUID;
 public class BallotDTO {
     private UUID ballotId;
     private UUID electionId;
-    private UUID voterId;
 }
+
