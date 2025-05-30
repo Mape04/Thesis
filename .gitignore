@@ -1,0 +1,39 @@
+# === General ===
+*.zip
+*.rar
+*.tar.gz
+*.7z
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# === Java/ Spring Boot ===
+/target/
+/build/
+/out/
+/.gradle/
+/.idea/
+/*.iml
+
+# === Node / React ===
+node_modules/
+dist/
+.vite/
+.env
+.env.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# === Uploaded Files ===
+src/main/resources/uploads/
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# === OS and Editor Files ===
+*.swp
+*~
+.vscode/
