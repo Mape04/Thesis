@@ -4,6 +4,8 @@ import {VoterContext} from '../context/VoterContext';
 import "../styles/ElectionDetails.css";
 import Navbar from "./Navbar.jsx";
 import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
+import ElectionAnalytics from "./ElectionAnalytics";
+
 
 // Modular exponentiation
 const modPow = (base, exponent, modulus) => {
@@ -512,8 +514,7 @@ function ElectionDetails() {
                     </div>
                 </div>
             )}
-
-
+            <ElectionAnalytics electionId={electionId} />
         </>
     );
 }

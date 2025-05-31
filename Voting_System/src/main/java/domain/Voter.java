@@ -3,6 +3,7 @@ package domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -25,9 +26,6 @@ public class Voter {
     @OneToMany(mappedBy = "voter", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<BlindCredential> blindCredentialSet = new HashSet<>();
 
-    // ❌ Removed ballot tracking to ensure voter can't be traced to votes
-    // private Set<Ballot> ballots = new HashSet<>();
-
     @Column(name = "profile_image_path")
     private String profileImagePath;
 
@@ -40,6 +38,10 @@ public class Voter {
 
     @Column(name = "cnp_hash", unique = true)
     private String cnpHash;
+
+    private String region;
+
+    private LocalDate birthdate;
 
     @Override
     public String toString() {
@@ -54,6 +56,7 @@ public class Voter {
                 ", voterType=" + voterType + '\'' +
                 ", isVerifiedHuman=" + isVerifiedHuman + '\'' +
                 ", cnpHash=" + cnpHash + '\'' +
+                ", region='" + region + '\'' +
                 '}';
     }
 }

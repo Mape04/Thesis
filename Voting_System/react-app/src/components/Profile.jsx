@@ -16,9 +16,14 @@ function Profile() {
     });
 
     const [cnp, setCnp] = useState('');
+    const [region, setRegion] = useState('');
+    const [birthdate, setBirthdate] = useState('');
+
     const [selectedImage, setSelectedImage] = useState(null);
     const [previewUrl, setPreviewUrl] = useState('');
     const [verificationStatus, setVerificationStatus] = useState('');
+
+
 
     // Fetch voter info only if voterId is valid
     useEffect(() => {
@@ -38,6 +43,8 @@ function Profile() {
                     voterType: data.voterType,
                     verifiedHuman: data.verifiedHuman,
                 });
+                setRegion(data.region || '');
+                setBirthdate(data.birthdate || '');
                 setPreviewUrl(`http://localhost:8080/api/voters/${voterId}/image`);
             } catch (err) {
                 console.error('Failed to fetch voter:', err);
@@ -115,7 +122,12 @@ function Profile() {
             const res = await fetch(`http://localhost:8080/api/voters/${voterId}/verify-human`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ssn: cnp }),
+                body: JSON.stringify({
+                    ssn: cnp,
+                    region,
+                    birthdate,
+                }),
+
             });
 
             const result = await res.json();
@@ -190,6 +202,20 @@ function Profile() {
                             placeholder="Enter your CNP (13 digits)"
                             maxLength={13}
                         />
+                        <input
+                            type="text"
+                            value={region}
+                            onChange={(e) => setRegion(e.target.value)}
+                            placeholder="Enter your region (e.g. Cluj)"
+                        />
+
+                        <input
+                            type="date"
+                            value={birthdate}
+                            onChange={(e) => setBirthdate(e.target.value)}
+                            placeholder="Enter your birthdate"
+                        />
+
                         <button onClick={handleVerifyHuman}>Verify</button>
                         {verificationStatus && <p>{verificationStatus}</p>}
                     </div>

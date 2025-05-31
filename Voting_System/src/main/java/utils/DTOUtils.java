@@ -28,7 +28,9 @@ public class DTOUtils {
                 voter.isVoterIsRegistered(),
                 voter.getProfileImagePath(),
                 voter.getVoterType(),
-                voter.isVerifiedHuman()
+                voter.isVerifiedHuman(),
+                voter.getRegion(),
+                voter.getBirthdate()
         );
     }
 
@@ -103,6 +105,8 @@ public class DTOUtils {
         voter.setProfileImagePath(voterDTO.getProfileImagePath());
         voter.setVoterType(voterDTO.getVoterType());
         voter.setVerifiedHuman(voterDTO.isVerifiedHuman());
+        voter.setRegion(voterDTO.getRegion());
+        voter.setBirthdate(voterDTO.getBirthdate());
         return voter;
     }
 

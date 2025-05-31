@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
@@ -33,6 +34,10 @@ public class Vote {
     @Lob
     @Column(name = "encrypted_vote", nullable = false)
     private byte[] encryptedVote; // Store vote anonymously
+
+    @Column(nullable = false)
+    private LocalDateTime timestamp;
+
 
     // Remove voter reference and signed token to ensure anonymity
 

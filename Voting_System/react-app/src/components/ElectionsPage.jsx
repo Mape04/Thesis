@@ -11,6 +11,7 @@ function ElectionsPage() {
     const [elections, setElections] = useState([]);
     const [authorities, setAuthorities] = useState({});
     const [searchQuery, setSearchQuery] = useState('');
+    const [filter, setFilter] = useState("all");
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [selectedElectionId, setSelectedElectionId] = useState(null);
@@ -309,6 +310,17 @@ function ElectionsPage() {
         }
     };
 
+    const filteredElections = elections
+        .filter(election => {
+            if (filter === "all") return true;
+            const authority = authorities[election.electionAuthorityId];
+            return authority?.authorityEmail === voterInfo.voterEmail;
+        })
+        .filter(election =>
+            election.electionName.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+
+
 
     return (
         <>
@@ -318,6 +330,15 @@ function ElectionsPage() {
 
                 {/* 🔥 Search and Create Bar */}
                 <div className="search-create-bar">
+                    <select
+                        value={filter}
+                        onChange={(e) => setFilter(e.target.value)}
+                        className="filter-dropdown"
+                    >
+                        <option value="all">All Elections</option>
+                        <option value="mine">My Elections</option>
+                    </select>
+
                     <input
                         type="text"
                         placeholder="Search elections..."
@@ -330,38 +351,36 @@ function ElectionsPage() {
                     </button>
                 </div>
 
+
                 <div className="elections-list">
-                    {elections.length > 0 ? (
-                        elections
-                            .filter(election => election.electionName.toLowerCase().includes(searchQuery.toLowerCase()))
-                            .map((election) => (
-                                <div
-                                    key={election.electionId}
-                                    className="election-item"
-                                    onClick={() => handleElectionClick(election.electionId)}
-                                >
-                                    <h3>
-                                        {election.electionName}
-                                        {election.accessLevel === "INSTITUTION" && (
-                                            <span title="Institution Election"
-                                                  style={{marginLeft: "8px", color: "#0066ff", fontWeight: "bold"}}>
-                                                [INSTITUTION]
-                                            </span>
-                                        )}
-                                        {election.electionPassword && (
-                                            <FontAwesomeIcon icon={faLock} title="Private Election"
-                                                             style={{marginLeft: "8px", color: "#ff5252"}}/>
-                                        )}
-                                    </h3>
+                    {filteredElections.length > 0 ? (
+                        filteredElections.map((election) => (
+                            <div
+                                key={election.electionId}
+                                className="election-item"
+                                onClick={() => handleElectionClick(election.electionId)}
+                            >
+                                <h3>
+                                    {election.electionName}
+                                    {election.accessLevel === "INSTITUTION" && (
+                                        <span title="Institution Election"
+                                              style={{marginLeft: "8px", color: "#0066ff", fontWeight: "bold"}}>
+                        [INSTITUTION]
+                    </span>
+                                    )}
+                                    {election.electionPassword && (
+                                        <FontAwesomeIcon icon={faLock} title="Private Election"
+                                                         style={{marginLeft: "8px", color: "#ff5252"}}/>
+                                    )}
+                                </h3>
 
-
-                                    <h4>Creator: {authorities[election.electionAuthorityId]?.authorityName || "Unknown"}</h4>
-                                    <p>
-                                        {election.startDate ? new Date(election.startDate).toLocaleDateString() : "Unknown"} -
-                                        {election.endDate ? new Date(election.endDate).toLocaleDateString() : "Unknown"}
-                                    </p>
-                                </div>
-                            ))
+                                <h4>Creator: {authorities[election.electionAuthorityId]?.authorityName || "Unknown"}</h4>
+                                <p>
+                                    {election.startDate ? new Date(election.startDate).toLocaleDateString() : "Unknown"} -
+                                    {election.endDate ? new Date(election.endDate).toLocaleDateString() : "Unknown"}
+                                </p>
+                            </div>
+                        ))
                     ) : (
                         <p>No elections available.</p>
                     )}

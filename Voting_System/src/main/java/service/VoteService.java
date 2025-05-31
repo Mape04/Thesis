@@ -14,6 +14,7 @@ import javax.crypto.Cipher;
 import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -67,6 +68,7 @@ public class VoteService {
             // 5. Create a ballot (no voter info stored)
             Ballot ballot = new Ballot();
             ballot.setElection(election);
+            ballot.setRegion(voter.getRegion());
             ballotRepository.save(ballot);
 
             // 6. Collect selected candidates
@@ -94,10 +96,12 @@ public class VoteService {
             byte[] encryptedVote = cipher.doFinal(voteContent.getBytes(StandardCharsets.UTF_8));
 
             // 8. Save vote (anonymous)
+
             Vote vote = new Vote();
             vote.setBallot(ballot);
             vote.setSelectedCandidates(selectedCandidates);
             vote.setEncryptedVote(encryptedVote);
+            vote.setTimestamp(LocalDateTime.now());
             voteRepository.save(vote);
 
             // 9. Mark blind token as used

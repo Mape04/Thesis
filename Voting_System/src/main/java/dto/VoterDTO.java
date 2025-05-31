@@ -4,6 +4,7 @@ import domain.VoterType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
@@ -17,4 +18,6 @@ public class VoterDTO {
     private String profileImagePath;
     private VoterType voterType;
     private boolean isVerifiedHuman;
+    private String region;
+    private LocalDate birthdate;
 }

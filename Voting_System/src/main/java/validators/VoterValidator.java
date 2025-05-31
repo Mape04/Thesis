@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 import repository.VoterRepository;
 
+import java.time.LocalDate;
+
 @Component
 public class VoterValidator implements Validator<Voter> {
     private final VoterRepository voterRepository;
@@ -62,6 +64,30 @@ public class VoterValidator implements Validator<Voter> {
         int lastDigit = Character.getNumericValue(cnp.charAt(12));
         if (lastDigit != checksum) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid CNP checksum.");
+        }
+    }
+
+    public void checkBirthdate(Voter voter){
+        if(voter.getBirthdate() == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Birthdate cannot be empty.");
+        }
+        if(voter.getBirthdate().plusMonths(1).isBefore(LocalDate.now())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Birthdate cannot be in the future.");
+        }
+    }
+
+    public void checkBirthDate(LocalDate birthdate){
+        if(birthdate == null){
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Birthdate cannot be empty.");
+        }
+        if(birthdate.isAfter(LocalDate.now())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Birthdate cannot be in the future.");
+        }
+    }
+
+    public void checkRegion(String region){
+        if(region == null || region.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Region cannot be empty.");
         }
     }
 

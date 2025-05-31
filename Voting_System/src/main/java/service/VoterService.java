@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import repository.VoterRepository;
 import validators.VoterValidator;
 
+import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -20,6 +21,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -101,11 +103,10 @@ public class VoterService {
         return voterRepository.save(voter);
     }
 
-    public void verifyHuman(UUID voterId, String cnp) {
-        Voter voter = voterRepository.findById(voterId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Voter not found"));
-
+    public void verifyHuman(Voter voter, String cnp) {
         voterValidator.checkCNP(cnp);
+        voterValidator.checkBirthDate(voter.getBirthdate());
+        voterValidator.checkRegion(voter.getRegion());
 
         String hashedCnp = hashCNP(cnp);
         if (voterRepository.existsByCnpHash(hashedCnp)) {
@@ -116,6 +117,7 @@ public class VoterService {
         voter.setVerifiedHuman(true);
         voterRepository.save(voter);
     }
+
 
     private String hashCNP(String cnp) {
         try {

@@ -1,18 +1,18 @@
 package controller;
 
-import domain.Election;
 import dto.VoterDTO;
 import domain.Voter;
+import dto.VoterVerificationRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.*;
-import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import service.ElectionService;
 import service.VoteService;
 import service.VoterService;
 import utils.DTOUtils;
+import validators.VoterValidator;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,8 +22,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static org.springframework.http.MediaTypeFactory.*;
 
 @RestController
 @RequestMapping("/api/voters")  // Base URL for all the Voter-related endpoints
@@ -35,7 +33,7 @@ public class VoterController {
 
 
     @Autowired
-    public VoterController(VoterService voterService, ElectionService electionService, VoteService voteService) {
+    public VoterController(VoterService voterService, ElectionService electionService, VoteService voteService, VoterValidator voterValidator) {
         this.voterService = voterService;
         this.electionService = electionService;
         this.voteService = voteService;
@@ -162,15 +160,31 @@ public class VoterController {
     }
 
     @PostMapping("/{voterId}/verify-human")
-    public ResponseEntity<?> verifyHuman(@PathVariable UUID voterId, @RequestBody Map<String, String> payload) {
-        String cnp = payload.get("ssn");
-        if (cnp == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "SSN (CNP) is required."));
+    public ResponseEntity<?> verifyHuman(
+            @PathVariable UUID voterId,
+            @RequestBody VoterVerificationRequestDTO request) {
+
+        if (request.getSsn() == null || request.getSsn().length() != 13) {
+            return ResponseEntity.badRequest().body(Map.of("error", "SSN (CNP) is required and must be 13 digits."));
         }
 
-        voterService.verifyHuman(voterId, cnp);
-        return ResponseEntity.ok(Map.of("status", "verified"));
+        try {
+            Voter voter = voterService.getVoterById(voterId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Voter not found"));
+
+            voter.setBirthdate(request.getBirthdate());
+            voter.setRegion(request.getRegion());
+
+            // Pass the enriched entity and CNP to service
+            voterService.verifyHuman(voter, request.getSsn());
+
+            return ResponseEntity.ok(Map.of("status", "verified"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Verification failed: " + e.getMessage()));
+        }
     }
+
 
 
 }

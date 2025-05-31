@@ -26,11 +26,15 @@ public class Ballot {
     @OneToMany(mappedBy = "ballot", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Vote> votes;
 
+    @Column
+    private String region;
+
     @Override
     public String toString() {
         return "Ballot{" +
                 "ballotId=" + ballotId +
                 ", election=" + (election != null ? election.getElectionId() : "null") +
+                ", region='" + region + '\'' +
                 '}';
     }
 }
