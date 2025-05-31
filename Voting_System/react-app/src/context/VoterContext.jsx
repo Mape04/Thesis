@@ -22,7 +22,11 @@ export const VoterProvider = ({ children }) => {
     const logout = () => {
         setVoterId(null);
         setVoterToken(null);
+        localStorage.removeItem('voterId');
+        localStorage.removeItem('voterToken');
+        setIsLoggedIn(false);
     };
+
 
     return (
         <VoterContext.Provider value={{ voterId, voterToken, setVoterId, setVoterToken, isLoggedIn, setIsLoggedIn, logout }}>

@@ -1,5 +1,6 @@
 package dto;
 
+import domain.VoterType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -14,4 +15,6 @@ public class VoterDTO {
     private String voterPassword;
     private boolean voterIsRegistered;
     private String profileImagePath;
+    private VoterType voterType;
+    private boolean isVerifiedHuman;
 }

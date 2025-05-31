@@ -54,6 +54,11 @@ public class Election {
     @JoinColumn(name = "election_authority_id", nullable = false)
     private ElectionAuthority electionAuthority;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ElectionAccessLevel accessLevel = ElectionAccessLevel.BASIC;
+
+
     @Override
     public String toString() {
         return "Election{" +

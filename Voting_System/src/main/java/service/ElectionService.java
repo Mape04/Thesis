@@ -28,19 +28,31 @@ public class ElectionService {
     private final ElectionRepository electionRepository;
     private final ElectionAuthorityRepository electionAuthorityRepository;
     private final CandidateRepository candidateRepository;
+    private final VoterRepository voterRepository;
     private final ElectionValidator electionValidator;
 
     @Autowired
-    public ElectionService(ElectionRepository electionRepository, ElectionAuthorityRepository electionAuthorityRepository, CandidateRepository candidateRepository, ElectionValidator electionValidator) {
+    public ElectionService(ElectionRepository electionRepository, ElectionAuthorityRepository electionAuthorityRepository, CandidateRepository candidateRepository, VoterRepository voterRepository, ElectionValidator electionValidator) {
         this.electionRepository = electionRepository;
         this.electionAuthorityRepository = electionAuthorityRepository;
         this.candidateRepository = candidateRepository;
+        this.voterRepository = voterRepository;
         this.electionValidator = electionValidator;
     }
 
     public Election createElection(UUID authorityId, ElectionDTO electionData) {
         ElectionAuthority authority = electionAuthorityRepository.findById(authorityId)
                 .orElseThrow(() -> new RuntimeException("Authority not found."));
+
+        // ✅ Check if an INSTITUTION election is being created
+        if (electionData.getAccessLevel() == ElectionAccessLevel.INSTITUTION) {
+            Voter voter = voterRepository.findByVoterEmail(authority.getAuthorityEmail())
+                    .orElseThrow(() -> new RuntimeException("Voter not found for authority email."));
+
+            if (voter.getVoterType() != VoterType.INSTITUTION_VERIFIED) {
+                throw new IllegalStateException("Only INSTITUTION_VERIFIED voters can create INSTITUTION elections.");
+            }
+        }
 
         Election newElection = new Election();
         newElection.setElectionName(electionData.getElectionName());
@@ -50,6 +62,7 @@ public class ElectionService {
         newElection.setElectionDescription(electionData.getElectionDescription());
         newElection.setNrVotesPerVoter(electionData.getNrVotesPerVoter());
         newElection.setElectionType(electionData.getElectionType());
+        newElection.setAccessLevel(electionData.getAccessLevel()); // ✅ store access level
         newElection.setElectionAuthority(authority);
 
         // Password hashing (optional)
@@ -61,9 +74,9 @@ public class ElectionService {
             newElection.setElectionPassword(null);
         }
 
-        // Store runoff dates if needed
+        // Runoff handling
         if (electionData.getElectionType() == ElectionType.TOP_TWO_RUNOFF) {
-            newElection.setNrVotesPerVoter(1); // force 1 vote for runoff mode
+            newElection.setNrVotesPerVoter(1); // enforce 1 vote
             newElection.setRunoffStartDate(electionData.getRunoffStartDate());
             newElection.setRunoffEndDate(electionData.getRunoffEndDate());
         }
@@ -71,7 +84,6 @@ public class ElectionService {
         electionValidator.validate(newElection);
         return electionRepository.save(newElection);
     }
-
 
 
     public Election updateElection(UUID electionId, Election updatedData) {
@@ -89,28 +101,23 @@ public class ElectionService {
         election.setNrVotesPerVoter(updatedData.getNrVotesPerVoter());
         election.setElectionType(updatedData.getElectionType());
         election.setElectionPassword(updatedData.getElectionPassword());
+        election.setAccessLevel(updatedData.getAccessLevel()); // optional: allow updating access level
 
         return electionRepository.save(election);
     }
 
-
-
-    // Create or update an election
     public Election saveElection(Election election) {
         return electionRepository.save(election);
     }
 
-    // Get all elections
     public List<Election> getAllElections() {
         return electionRepository.findAll();
     }
 
-    // Get an election by ID
     public Optional<Election> getElectionById(UUID id) {
         return electionRepository.findById(id);
     }
 
-    // Delete an election by ID
     public void deleteElection(UUID id) {
         electionRepository.deleteById(id);
     }
@@ -120,7 +127,6 @@ public class ElectionService {
             throw new IllegalArgumentException("This election is not a TOP_TWO_RUNOFF type.");
         }
 
-        // Use a Pageable to get top 2 candidates
         Pageable topTwoPage = PageRequest.of(0, 2);
         List<Candidate> topTwo = candidateRepository.findTopNCandidatesByElectionId(original.getElectionId(), topTwoPage);
 
@@ -128,35 +134,29 @@ public class ElectionService {
             throw new IllegalStateException("Not enough candidates to create a runoff election.");
         }
 
-        // Create the runoff election
         Election runoff = new Election();
         runoff.setElectionName(original.getElectionName() + " - Runoff");
-        runoff.setStartDate(original.getRunoffStartDate()); // Customize as needed
+        runoff.setStartDate(original.getRunoffStartDate());
         runoff.setEndDate(original.getRunoffEndDate());
         runoff.setElectionVotes(0);
         runoff.setNrVotesPerVoter(1);
         runoff.setElectionType(ElectionType.STANDARD);
         runoff.setElectionDescription("Runoff election for top two candidates of " + original.getElectionName());
         runoff.setElectionAuthority(original.getElectionAuthority());
+        runoff.setAccessLevel(original.getAccessLevel()); // maintain same access level
 
         electionRepository.save(runoff);
 
-        // Copy the top 2 candidates to the new election
         for (Candidate c : topTwo) {
             Candidate clone = new Candidate();
             clone.setCandidateName(c.getCandidateName());
             clone.setCandidateParty(c.getCandidateParty());
             clone.setElection(runoff);
-            clone.setNrOfVotes(0); // Reset votes
+            clone.setNrOfVotes(0);
             candidateRepository.save(clone);
         }
 
-        // Link runoff to original
         original.setRunoffElection(runoff);
         electionRepository.save(original);
-
-        //return runoff;
     }
-
-
 }

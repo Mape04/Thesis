@@ -26,7 +26,9 @@ public class DTOUtils {
                 voter.getVoterEmail(),
                 voter.getVoterPassword(),
                 voter.isVoterIsRegistered(),
-                voter.getProfileImagePath()
+                voter.getProfileImagePath(),
+                voter.getVoterType(),
+                voter.isVerifiedHuman()
         );
     }
 
@@ -74,7 +76,8 @@ public class DTOUtils {
                 election.getElectionAuthority() != null ? election.getElectionAuthority().getElectionAuthorityId() : null,
                 election.getRunoffStartDate(),
                 election.getRunoffEndDate(),
-                election.getRunoffElection() !=null ? election.getRunoffElection().getElectionId() : null
+                election.getRunoffElection() !=null ? election.getRunoffElection().getElectionId() : null,
+                election.getAccessLevel()
         );
     }
 
@@ -98,6 +101,8 @@ public class DTOUtils {
         voter.setVoterPassword(voterDTO.getVoterPassword());
         voter.setVoterIsRegistered(voterDTO.isVoterIsRegistered());
         voter.setProfileImagePath(voterDTO.getProfileImagePath());
+        voter.setVoterType(voterDTO.getVoterType());
+        voter.setVerifiedHuman(voterDTO.isVerifiedHuman());
         return voter;
     }
 

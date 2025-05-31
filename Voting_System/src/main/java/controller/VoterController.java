@@ -161,7 +161,16 @@ public class VoterController {
         return MediaType.APPLICATION_OCTET_STREAM;
     }
 
+    @PostMapping("/{voterId}/verify-human")
+    public ResponseEntity<?> verifyHuman(@PathVariable UUID voterId, @RequestBody Map<String, String> payload) {
+        String cnp = payload.get("ssn");
+        if (cnp == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "SSN (CNP) is required."));
+        }
 
+        voterService.verifyHuman(voterId, cnp);
+        return ResponseEntity.ok(Map.of("status", "verified"));
+    }
 
 
 }

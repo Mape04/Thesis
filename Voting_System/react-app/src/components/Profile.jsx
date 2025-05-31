@@ -1,18 +1,26 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { VoterContext } from '../context/VoterContext';
 import { useNavigate } from 'react-router-dom';
-import '../styles/Profile.css';
 import Navbar from './Navbar';
+import '../styles/Profile.css';
 
 function Profile() {
     const { voterId, logout } = useContext(VoterContext);
-    const [voter, setVoter] = useState(null);
-    const [voterName, setVoterName] = useState('');
-    const [voterEmail, setVoterEmail] = useState('');
-    const [selectedImage, setSelectedImage] = useState(null);
-    const [previewUrl, setPreviewUrl] = useState('');
     const navigate = useNavigate();
 
+    const [voterData, setVoterData] = useState({
+        voterName: '',
+        voterEmail: '',
+        voterType: '',
+        verifiedHuman: false,
+    });
+
+    const [cnp, setCnp] = useState('');
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState('');
+    const [verificationStatus, setVerificationStatus] = useState('');
+
+    // Fetch voter info only if voterId is valid
     useEffect(() => {
         if (!voterId) {
             navigate('/');
@@ -22,10 +30,14 @@ function Profile() {
         const fetchVoter = async () => {
             try {
                 const res = await fetch(`http://localhost:8080/api/voters/${voterId}`);
+                if (!res.ok) throw new Error('Failed to fetch voter data');
                 const data = await res.json();
-                setVoter(data);
-                setVoterName(data.voterName);
-                setVoterEmail(data.voterEmail);
+                setVoterData({
+                    voterName: data.voterName,
+                    voterEmail: data.voterEmail,
+                    voterType: data.voterType,
+                    verifiedHuman: data.verifiedHuman,
+                });
                 setPreviewUrl(`http://localhost:8080/api/voters/${voterId}/image`);
             } catch (err) {
                 console.error('Failed to fetch voter:', err);
@@ -47,51 +59,80 @@ function Profile() {
 
     const handleSave = async () => {
         const formData = new FormData();
-        formData.append('voterName', voterName);
-        formData.append('voterEmail', voterEmail);
-        if (selectedImage) {
-            formData.append('file', selectedImage); // 👈 image
-        }
+        formData.append('voterName', voterData.voterName);
+        formData.append('voterEmail', voterData.voterEmail);
+        if (selectedImage) formData.append('file', selectedImage);
 
         try {
             const res = await fetch(`http://localhost:8080/api/voters/${voterId}`, {
                 method: 'PUT',
-                body: formData
+                body: formData,
             });
 
-            if (!res.ok) {
-                const err = await res.json();
-                alert(`❌ Update failed: ${err.message || 'Unknown error'}`);
-                return;
-            }
-
+            const result = await res.json();
+            if (!res.ok) throw new Error(result.message || 'Unknown error');
             alert('✅ Profile updated successfully!');
+            // Refresh voter info after save
+            const refreshedRes = await fetch(`http://localhost:8080/api/voters/${voterId}`);
+            const refreshedData = await refreshedRes.json();
+            setVoterData({
+                voterName: refreshedData.voterName,
+                voterEmail: refreshedData.voterEmail,
+                voterType: refreshedData.voterType,
+                verifiedHuman: refreshedData.verifiedHuman,
+            });
+            setPreviewUrl(`http://localhost:8080/api/voters/${voterId}/image`);
         } catch (err) {
-            console.error('Error updating profile:', err);
-            alert('Something went wrong.');
+            console.error('Update failed:', err);
+            alert(`❌ Update failed: ${err.message}`);
         }
     };
 
     const handleDelete = async () => {
-        const confirmed = window.confirm('Are you sure you want to delete your profile?');
-        if (!confirmed) return;
+        if (!window.confirm('Are you sure you want to delete your profile?')) return;
 
         try {
             const res = await fetch(`http://localhost:8080/api/voters/${voterId}`, {
-                method: 'DELETE'
+                method: 'DELETE',
             });
-
-            if (!res.ok) {
-                alert('❌ Failed to delete profile.');
-                return;
-            }
-
+            if (!res.ok) throw new Error('Failed to delete profile.');
             alert('✅ Profile deleted.');
             logout();
             navigate('/');
         } catch (err) {
             console.error('Delete failed:', err);
-            alert('Something went wrong.');
+            alert(`❌ ${err.message}`);
+        }
+    };
+
+    const handleVerifyHuman = async () => {
+        if (!/^\d{13}$/.test(cnp)) {
+            setVerificationStatus('❌ CNP must be 13 digits.');
+            return;
+        }
+
+        try {
+            const res = await fetch(`http://localhost:8080/api/voters/${voterId}/verify-human`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ssn: cnp }),
+            });
+
+            const result = await res.json();
+            if (!res.ok) throw new Error(result.error || 'Verification failed.');
+            setVerificationStatus('✅ Verified successfully!');
+            // Refresh voter data after verification
+            const refreshedRes = await fetch(`http://localhost:8080/api/voters/${voterId}`);
+            const refreshedData = await refreshedRes.json();
+            setVoterData({
+                voterName: refreshedData.voterName,
+                voterEmail: refreshedData.voterEmail,
+                voterType: refreshedData.voterType,
+                verifiedHuman: refreshedData.verifiedHuman,
+            });
+        } catch (err) {
+            console.error('Verification failed:', err);
+            setVerificationStatus(`❌ ${err.message}`);
         }
     };
 
@@ -105,43 +146,59 @@ function Profile() {
                         alt="Profile"
                         className="profile-avatar"
                     />
-                    <h2 className="profile-title">Your Profile</h2>
+                    <h2>Your Profile</h2>
                 </div>
 
                 <div className="profile-form-group">
-                    <label htmlFor="voterName">Name</label>
+                    <label>Name</label>
                     <input
-                        id="voterName"
                         type="text"
-                        value={voterName}
-                        onChange={(e) => setVoterName(e.target.value)}
+                        value={voterData.voterName}
+                        onChange={(e) => setVoterData({ ...voterData, voterName: e.target.value })}
                     />
                 </div>
 
                 <div className="profile-form-group">
-                    <label htmlFor="voterEmail">Email</label>
+                    <label>Email</label>
                     <input
-                        id="voterEmail"
                         type="email"
-                        value={voterEmail}
-                        onChange={(e) => setVoterEmail(e.target.value)}
+                        value={voterData.voterEmail}
+                        onChange={(e) => setVoterData({ ...voterData, voterEmail: e.target.value })}
                     />
                 </div>
 
                 <div className="profile-form-group">
-                    <label htmlFor="profileImage">Profile Image</label>
-                    <input
-                        id="profileImage"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                    />
+                    <label>Profile Image</label>
+                    <input type="file" accept="image/*" onChange={handleImageChange} />
                 </div>
 
                 <div className="profile-buttons">
-                    <button className="profile-button save" onClick={handleSave}>Save</button>
-                    <button className="profile-button delete" onClick={handleDelete}>Delete</button>
+                    <button className="save" onClick={handleSave}>Save</button>
+                    <button className="delete" onClick={handleDelete}>Delete</button>
                 </div>
+
+                {!voterData.verifiedHuman ? (
+                    <div className="verify-section">
+                        <h3>Human Verification</h3>
+                        <p className="warning-text">
+                            To vote in INSTITUTION elections, enter your CNP (SSN) below:
+                        </p>
+                        <input
+                            type="text"
+                            value={cnp}
+                            onChange={(e) => setCnp(e.target.value)}
+                            placeholder="Enter your CNP (13 digits)"
+                            maxLength={13}
+                        />
+                        <button onClick={handleVerifyHuman}>Verify</button>
+                        {verificationStatus && <p>{verificationStatus}</p>}
+                    </div>
+                ) : (
+                    <div className="verify-section">
+                        <h3>✅ You are already verified!</h3>
+                        <p>You can vote in INSTITUTION elections.</p>
+                    </div>
+                )}
             </div>
         </>
     );

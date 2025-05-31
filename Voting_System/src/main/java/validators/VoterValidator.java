@@ -43,6 +43,29 @@ public class VoterValidator implements Validator<Voter> {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must be at least 8 characters: one uppercase, lowercase, digit, special character.");
         }
     }
+
+    public void checkCNP(String cnp) {
+        if (cnp == null || !cnp.matches("\\d{13}")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CNP must be 13 digits.");
+        }
+
+        int[] control = {2, 7, 9, 1, 4, 6, 3, 5, 8, 2, 7, 9};
+        int sum = 0;
+
+        for (int i = 0; i < 12; i++) {
+            sum += Character.getNumericValue(cnp.charAt(i)) * control[i];
+        }
+
+        int checksum = sum % 11;
+        if (checksum == 10) checksum = 1;
+
+        int lastDigit = Character.getNumericValue(cnp.charAt(12));
+        if (lastDigit != checksum) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid CNP checksum.");
+        }
+    }
+
+
     @Override
     public void validate(Voter voter) {
         if(voter == null)

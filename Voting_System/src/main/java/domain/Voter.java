@@ -31,6 +31,16 @@ public class Voter {
     @Column(name = "profile_image_path")
     private String profileImagePath;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private VoterType voterType = VoterType.BASIC;
+
+    @Column(nullable = false)
+    private boolean isVerifiedHuman = false;
+
+    @Column(name = "cnp_hash", unique = true)
+    private String cnpHash;
+
     @Override
     public String toString() {
         return "Voter{" +
@@ -41,6 +51,9 @@ public class Voter {
                 ", voterIsRegistered=" + voterIsRegistered +
                 ", blindCredentialSet=" + blindCredentialSet +
                 ", profileImagePath='" + profileImagePath + '\'' +
+                ", voterType=" + voterType + '\'' +
+                ", isVerifiedHuman=" + isVerifiedHuman + '\'' +
+                ", cnpHash=" + cnpHash + '\'' +
                 '}';
     }
 }

@@ -1,5 +1,6 @@
 package dto;
 
+import domain.ElectionAccessLevel;
 import domain.ElectionType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,4 +24,5 @@ public class ElectionDTO {
     private LocalDateTime runoffStartDate;
     private LocalDateTime runoffEndDate;
     private UUID runoffElectionId;
+    private ElectionAccessLevel accessLevel;
 }

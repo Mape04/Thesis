@@ -16,7 +16,13 @@ function ElectionsPage() {
     const [selectedElectionId, setSelectedElectionId] = useState(null);
     const [passwordInput, setPasswordInput] = useState('');
     const [passwordError, setPasswordError] = useState('');
-    const [voterInfo, setVoterInfo] = useState({ voterName: '', voterEmail: '' });
+    const [voterInfo, setVoterInfo] = useState({
+        voterName: '',
+        voterEmail: '',
+        verifiedHuman: false,
+        voterType: ''
+    });
+
 
     const [newElection, setNewElection] = useState({
         electionName: '',
@@ -87,12 +93,18 @@ function ElectionsPage() {
         const fetchVoterInfo = async () => {
             try {
                 const response = await fetch(`http://localhost:8080/api/voters/${voterId}`);
+
                 if (response.ok) {
                     const data = await response.json();
+                    console.log("Fetched voter data:", data);
+
                     setVoterInfo({
                         voterName: data.voterName,
-                        voterEmail: data.voterEmail
+                        voterEmail: data.voterEmail,
+                        verifiedHuman: data.verifiedHuman,
+                        voterType: data.voterType
                     });
+
                 }
             } catch (error) {
                 console.error("Error fetching voter info:", error);
@@ -106,7 +118,21 @@ function ElectionsPage() {
     const handleElectionClick = async (electionId) => {
         try {
             const res = await fetch(`http://localhost:8080/api/elections/${electionId}`);
+            if (!res.ok) {
+                console.error(`❌ Failed to load election (${res.status})`);
+                alert("Could not load election. Please try again.");
+                return;
+            }
             const data = await res.json();
+
+
+            if (data.accessLevel === "INSTITUTION") {
+                console.log(voterInfo.verifiedHuman);
+                if (!voterInfo.verifiedHuman) {
+                    alert("❌ You must verify your identity (SSN, address) to access this election.");
+                    return;
+                }
+            }
 
             if (data.electionPassword) {
                 setSelectedElectionId(electionId);
@@ -120,6 +146,8 @@ function ElectionsPage() {
             console.error("Failed to fetch election info:", error);
         }
     };
+
+
 
 
 
@@ -201,12 +229,14 @@ function ElectionsPage() {
                 startDate: newElection.startDate,
                 endDate: newElection.endDate,
                 electionVotes: 0,
-                nrVotesPerVoter: newElection.electionType === "POLL" ? 0 : parseInt(newElection.nrVotesPerVoter || 0), // fallback for safety
+                nrVotesPerVoter: newElection.electionType === "POLL" ? 0 : parseInt(newElection.nrVotesPerVoter || 0),
                 electionType: newElection.electionType || "POLL",
+                accessLevel: newElection.accessLevel || "BASIC",
                 electionDescription: "Custom created election",
                 runoffStartDate: newElection.electionType === "TOP_TWO_RUNOFF" ? newElection.runoffStartDate : null,
                 runoffEndDate: newElection.electionType === "TOP_TWO_RUNOFF" ? newElection.runoffEndDate : null
             };
+
             console.log("📝 Election Payload:", electionPayload);
             console.log("Election Payload (JSON):", JSON.stringify(electionPayload, null, 2));
 
@@ -312,11 +342,18 @@ function ElectionsPage() {
                                 >
                                     <h3>
                                         {election.electionName}
+                                        {election.accessLevel === "INSTITUTION" && (
+                                            <span title="Institution Election"
+                                                  style={{marginLeft: "8px", color: "#0066ff", fontWeight: "bold"}}>
+                                                [INSTITUTION]
+                                            </span>
+                                        )}
                                         {election.electionPassword && (
                                             <FontAwesomeIcon icon={faLock} title="Private Election"
                                                              style={{marginLeft: "8px", color: "#ff5252"}}/>
                                         )}
                                     </h3>
+
 
                                     <h4>Creator: {authorities[election.electionAuthorityId]?.authorityName || "Unknown"}</h4>
                                     <p>
@@ -378,6 +415,20 @@ function ElectionsPage() {
                             <option value="POLL">POLL</option>
                             <option value="STANDARD">STANDARD</option>
                             <option value="TOP_TWO_RUNOFF">TOP_TWO_RUNOFF</option>
+                        </select>
+
+                        <select
+                            name="accessLevel"
+                            value={newElection.accessLevel || "BASIC"}
+                            onChange={(e) => setNewElection(prev => ({
+                                ...prev,
+                                accessLevel: e.target.value
+                            }))}
+                        >
+                            <option value="BASIC">Public</option>
+                            {voterInfo.voterType === "INSTITUTION_VERIFIED" && (
+                                <option value="INSTITUTION">Institution</option>
+                            )}
                         </select>
 
 

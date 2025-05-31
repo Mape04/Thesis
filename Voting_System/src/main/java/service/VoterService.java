@@ -1,20 +1,25 @@
 package service;
 
 import domain.Election;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import domain.Voter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import repository.VoterRepository;
 import validators.VoterValidator;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -95,5 +100,32 @@ public class VoterService {
 
         return voterRepository.save(voter);
     }
+
+    public void verifyHuman(UUID voterId, String cnp) {
+        Voter voter = voterRepository.findById(voterId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Voter not found"));
+
+        voterValidator.checkCNP(cnp);
+
+        String hashedCnp = hashCNP(cnp);
+        if (voterRepository.existsByCnpHash(hashedCnp)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This CNP is already used.");
+        }
+
+        voter.setCnpHash(hashedCnp);
+        voter.setVerifiedHuman(true);
+        voterRepository.save(voter);
+    }
+
+    private String hashCNP(String cnp) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(cnp.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-256 not supported", e);
+        }
+    }
+
 
 }
