@@ -67,7 +67,6 @@ function Registration() {
     return (
         <div className="auth-container">
             <div className="auth-left">
-
             </div>
             <div className="auth-right">
             <form onSubmit={handleRegister} className="auth-form">

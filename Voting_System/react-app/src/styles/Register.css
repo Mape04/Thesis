@@ -28,8 +28,9 @@
 
 .auth-left {
     flex: 1;
-    /* Optional styling for the left half */
 }
+
+
 
 .auth-right {
     flex: 1;
@@ -42,6 +43,8 @@
 .auth-form h2 {
     text-align: center;
     color: #22d3ee;
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: black;
     margin-bottom: 1.5rem;
     font-size: 2rem;
 }
@@ -122,4 +125,15 @@
     transform: translateY(-50%);
     cursor: pointer;
     color: #94a3b8;
+}
+
+@media (max-width: 1024px){
+    .auth-container{
+        flex-direction: column;
+    }
+
+    .auth-left{
+        display: none;
+    }
+
 }

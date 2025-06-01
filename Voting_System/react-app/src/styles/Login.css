@@ -43,6 +43,8 @@
     margin-bottom: 2rem;
     font-size: 2rem;
     color: #22d3ee;
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: black;
 }
 
 .login-container input {
@@ -107,4 +109,15 @@
     transform: translateY(-50%);
     cursor: pointer;
     color: #94a3b8;
+}
+
+@media (max-width: 1024px){
+    .login-container{
+        flex-direction: column;
+    }
+
+    .login-left{
+        display: none;
+    }
+
 }

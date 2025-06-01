@@ -67,7 +67,6 @@
     margin-left: 1rem;
     padding: 0.5rem 1rem;
     border-radius: 6px;
-    border: none;
     font-weight: bold;
     cursor: pointer;
     background-color: transparent;
@@ -152,34 +151,17 @@
 
 
 /* Responsive layout for smaller screens */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .navbar {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-    }
-
-    .guest-navbar {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px 24px;
-        background-color: #1e293b;
-        color: white;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
-    .guest-navbar h1 {
-        font-size: 1.5rem;
-        margin-left: 12px;
+    .navbar-title{
+        font-size: 1rem;
     }
 
-
-    .navbar-left,
-    .navbar-right {
-        width: 100%;
-        justify-content: space-between;
-        flex-wrap: wrap;
+    .guest-navbar{
+        padding: 15px;
     }
 
     .navbar-title a {
@@ -190,32 +172,22 @@
         transition: color 0.2s ease;
     }
 
-    .navbar-title {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 1.4rem;
-        font-weight: bold;
-        color: var(--navbar-accent);
-    }
-
-    .logo-img {
-        width: 32px;
-        height: auto;
-        object-fit: contain;
-        display: inline-block;
-        vertical-align: middle;
-    }
-
-
-
     .nav-button {
-        width: 100%;
+        font-size: 12px;
+        margin: 0;
         text-align: center;
     }
 
-    .back-button {
-        width: auto;
+    .back-button{
+        padding: 0;
+        font-size: 15px;
+    }
+    .profile-button{
+        margin: 0;
+    }
+
+    .navbar-name{
+        display: none;
     }
 }
 

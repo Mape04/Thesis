@@ -4,6 +4,7 @@
     background-image: url("../assets/ProfilePageBackground.jpg");
     background-repeat: no-repeat;
     background-size: cover;
+    background-position: center;
     min-height: 100vh;
 }
 .profile-wrapper {
@@ -217,4 +218,11 @@ input[type="file"] {
     border: 1px solid #394b63;
     background-color: #2b2d42;
     color: #e0e6f0;
+}
+
+@media (max-width: 1024px)
+{
+    .profile-wrapper{
+        margin: 0;
+    }
 }

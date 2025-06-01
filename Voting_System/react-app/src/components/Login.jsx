@@ -47,17 +47,16 @@ function Login() {
     return (
         <div className="login-container">
             <div className="login-left">
-                {/* Optional logo or background image */}
             </div>
 
             <div className="login-right">
-            <form onSubmit={handleLogin}>
+                <form onSubmit={handleLogin}>
 
-                <h1>Login</h1>
-                <div>
-                    <input
-                        type="text"
-                        id="voterEmail"
+                    <h1>Login</h1>
+                    <div>
+                        <input
+                            type="text"
+                            id="voterEmail"
                         value={voterEmail}
                         placeholder="Email"
                         onChange={(e) => setVoterEmail(e.target.value)}

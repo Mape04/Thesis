@@ -311,15 +311,27 @@ function ElectionsPage() {
         }
     };
 
+    const now = new Date();
+
     const filteredElections = elections
         .filter(election => {
-            if (filter === "all") return true;
-            const authority = authorities[election.electionAuthorityId];
-            return authority?.authorityEmail === voterInfo.voterEmail;
+            if (filter === "mine") {
+                const authority = authorities[election.electionAuthorityId];
+                return authority?.authorityEmail === voterInfo.voterEmail;
+            } else if (filter === "ongoing") {
+                const start = new Date(election.startDate);
+                const end = new Date(election.endDate);
+                return start <= now && now < end;
+            } else if (filter === "finished") {
+                const end = new Date(election.endDate);
+                return now >= end;
+            }
+            return true; // "all"
         })
         .filter(election =>
             election.electionName.toLowerCase().includes(searchQuery.toLowerCase())
         );
+
 
 
 
@@ -338,7 +350,10 @@ function ElectionsPage() {
                     >
                         <option value="all">All Elections</option>
                         <option value="mine">My Elections</option>
+                        <option value="ongoing">Ongoing Elections</option>
+                        <option value="finished">Finished Elections</option>
                     </select>
+
 
                     <input
                         type="text"

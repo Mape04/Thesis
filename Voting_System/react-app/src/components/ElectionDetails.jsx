@@ -101,6 +101,11 @@ function ElectionDetails() {
     };
 
 
+    useEffect(() => {
+        // Reset selection on voter or election change
+        setSelectedCandidates([]);
+    }, [voterId, electionId]);
+
 
     // 1. First fetch basic election + candidates + public key
     useEffect(() => {
@@ -146,12 +151,24 @@ function ElectionDetails() {
 
         checkIfVoted();
 
-        const savedChoices = localStorage.getItem(`votedChoices-${electionId}`);
-        if (savedChoices) {
-            const parsedChoices = JSON.parse(savedChoices);
-            setSelectedCandidates(parsedChoices);
-            setHasVoted(true);
+        const savedData = localStorage.getItem(`votedChoices-${electionId}`);
+        if (savedData) {
+            try {
+                const { voterId: savedVoterId, choices } = JSON.parse(savedData);
+                if (savedVoterId === voterId) {
+                    setSelectedCandidates(choices);
+                    setHasVoted(true);
+                } else {
+                    // Clear old selections for different user
+                    setSelectedCandidates([]);
+                    setHasVoted(false);
+                }
+            } catch (e) {
+                console.warn("Invalid localStorage format, clearing.");
+                localStorage.removeItem(`votedChoices-${electionId}`);
+            }
         }
+
 
         fetch(`http://localhost:8080/api/election-authorities/match?voterId=${voterId}&electionId=${electionId}`)
             .then(res => res.json())
@@ -323,7 +340,11 @@ function ElectionDetails() {
 
             if (responseData.status === "success") {
                 alert(responseData.message);
-                localStorage.setItem(`votedChoices-${electionId}`, JSON.stringify(selectedCandidates));
+                localStorage.setItem(`votedChoices-${electionId}`, JSON.stringify({
+                    voterId,
+                    choices: selectedCandidates
+                }));
+
                 setHasVoted(true);
                 fetchResults();
                 fetchTotalVotes();
