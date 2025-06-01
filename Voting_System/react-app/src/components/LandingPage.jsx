@@ -3,26 +3,15 @@ import { Link } from "react-router-dom";
 import { FaVoteYea, FaShieldAlt, FaLock, FaFacebook, FaTwitter, FaGithub } from "react-icons/fa";
 import logo from "../assets/react.svg"; // Replace with your actual logo path
 import "../styles/LandingPage.css";
+import Navbar from "./Navbar.jsx";
 
 export default function LandingPage() {
     return (
         <div className="landing-page">
-            <header>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <img src={logo} alt="SecureVote logo" />
-                    <h1>SecureVote</h1>
-                </div>
-                <nav>
-                    <Link to="/login">
-                        <button className="btn-login">Login</button>
-                    </Link>
-                    <Link to="/register">
-                        <button className="btn-register">Register</button>
-                    </Link>
-                </nav>
-            </header>
 
+            <Navbar/>
             <section className="hero">
+                <div className={"hero-text"}>
                 <h2>
                     Private. Secure. Verifiable. <span style={{ color: '#22d3ee' }}>Voting Reinvented</span>
                 </h2>
@@ -30,6 +19,7 @@ export default function LandingPage() {
                 <Link to="/register">
                     <button>Get Started</button>
                 </Link>
+                </div>
             </section>
 
             <section className="features">

@@ -46,6 +46,11 @@ function Login() {
 
     return (
         <div className="login-container">
+            <div className="login-left">
+                {/* Optional logo or background image */}
+            </div>
+
+            <div className="login-right">
             <form onSubmit={handleLogin}>
 
                 <h1>Login</h1>
@@ -54,7 +59,7 @@ function Login() {
                         type="text"
                         id="voterEmail"
                         value={voterEmail}
-                        placeholder= "Email"
+                        placeholder="Email"
                         onChange={(e) => setVoterEmail(e.target.value)}
                     />
                 </div>
@@ -78,7 +83,7 @@ function Login() {
                     Don’t have an account? <Link to="/register">Register here</Link>
                 </p>
             </form>
-
+            </div>
 
         </div>
     );

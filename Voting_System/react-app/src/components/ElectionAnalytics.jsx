@@ -147,12 +147,14 @@ function ElectionAnalytics() {
             );
         }
 
+        console.log(regionParticipation);
+
         if (activeTab === "region" && regionParticipation.length > 0) {
             const isSingleRegion = regionParticipation.length === 1;
             const chartData = {
                 labels: regionParticipation.map(r => r.region),
                 datasets: [{
-                    data: regionParticipation.map(r => Number(r.voteCount)),
+                    data: regionParticipation.map(r => Number(r.count)),
                     backgroundColor: regionParticipation.map((_, i) =>
                         `hsl(${(i * 50) % 360}, 70%, 60%)`
                     ),

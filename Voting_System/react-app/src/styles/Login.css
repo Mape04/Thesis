@@ -4,17 +4,38 @@
     justify-content: center;
     align-items: center;
     background-color: #0f172a;
+    background-image: url("../assets/HeroBackground.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
     padding: 2rem;
 }
 
-.login-container form {
-    background-color: #1e293b;
+.login-left {
+    flex: 1;
+    /* Optional styling for the left half */
+}
+
+.login-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+.login-right form {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    color: white;
     padding: 2.5rem 2rem;
     border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.3);
-    max-width: 400px;
-    width: 100%;
-    color: white;
 }
 
 .login-container h1 {

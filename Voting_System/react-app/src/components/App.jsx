@@ -13,12 +13,12 @@ function AppRoutes() {
     const { isLoggedIn } = useContext(VoterContext);
     return (
         <Routes>
-            <Route path="/" element={<LandingPage />}/>
+            <Route path="/" element={isLoggedIn ? <ElectionsPage /> : <LandingPage />} />
             <Route path="/login" element={isLoggedIn ? <Navigate to="/elections" replace /> : <Login />} />
             <Route path="/register" element={<Registration />} />
             <Route path="/elections" element={isLoggedIn ? <ElectionsPage /> : <Navigate to="/" replace />} />
             <Route path="/election/:electionId" element={isLoggedIn ? <ElectionDetails /> : <Navigate to="/" replace />} />
-            <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate  to="/" replace /> }/>
+            <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate to="/" replace />} />
         </Routes>
     );
 }

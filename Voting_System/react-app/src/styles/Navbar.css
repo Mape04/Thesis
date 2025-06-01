@@ -1,5 +1,5 @@
 :root {
-    --navbar-bg: #1e293b;
+    --navbar-bg: #121826;
     --navbar-text: #ffffff;
     --navbar-accent: #60a5fa;
     --button-bg-profile: #3b82f6;
@@ -9,7 +9,7 @@
 }
 
 [data-theme="light"] {
-    --navbar-bg: #f8fafc;
+    --navbar-bg: #121826;
     --navbar-text: #1e293b;
     --navbar-accent: #2563eb;
     --button-bg-profile: #2563eb;
@@ -20,11 +20,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 14px 28px;
+    padding: 15px 28px;
     background-color: var(--navbar-bg);
     color: var(--navbar-text);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    font-family: var(--font-family);
     z-index: 100;
     position: relative;
     flex-wrap: wrap;
@@ -64,8 +63,31 @@
     font-weight: 500;
 }
 
+.btn-register {
+    margin-left: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: transparent;
+    color: #fff;
+    border: 1px solid #fff;
+}
+
+.btn-login {
+    margin-left: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: #06b6d4;
+    color: #000;
+}
+
 .profile-button {
-    background-color: var(--button-bg-profile);
+    background-color: #06b6d4;
     margin-left: 1rem;
     padding: 0.5rem 1rem;
     border-radius: 6px;
@@ -113,6 +135,21 @@
     transition: color 0.2s ease;
 }
 
+.guest-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 28px;
+    background-color: #121826;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.guest-navbar h1 {
+    font-size: 1.5rem;
+    margin-left: 12px;
+}
+
 
 /* Responsive layout for smaller screens */
 @media (max-width: 768px) {
@@ -121,6 +158,22 @@
         align-items: flex-start;
         gap: 12px;
     }
+
+    .guest-navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 24px;
+        background-color: #1e293b;
+        color: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .guest-navbar h1 {
+        font-size: 1.5rem;
+        margin-left: 12px;
+    }
+
 
     .navbar-left,
     .navbar-right {
@@ -164,4 +217,25 @@
     .back-button {
         width: auto;
     }
+}
+
+.nav-profile-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.navbar-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #60a5fa;
+}
+
+.navbar-name {
+    color: white;
+    font-weight: 500;
+    font-size: 0.95rem;
 }

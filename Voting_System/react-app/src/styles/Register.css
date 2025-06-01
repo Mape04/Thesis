@@ -1,4 +1,8 @@
 .auth-container {
+    background-image: url("../assets/HeroBackground.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
     min-height: 100vh;
     background-color: #0f172a;
     display: flex;
@@ -8,15 +12,31 @@
 }
 
 .auth-form {
-    background-color: #1e293b;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    color: white;
     padding: 2.5rem 2rem;
     border-radius: 10px;
-    box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
-    max-width: 400px;
-    width: 100%;
-    color: white;
+}
+
+.auth-left {
+    flex: 1;
+    /* Optional styling for the left half */
+}
+
+.auth-right {
+    flex: 1;
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
 }
 
 .auth-form h2 {
@@ -42,6 +62,7 @@
 }
 
 .auth-form button {
+    width: 100%;
     padding: 0.8rem;
     font-size: 1rem;
     background-color: #22d3ee;

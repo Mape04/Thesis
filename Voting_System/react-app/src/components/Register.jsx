@@ -66,7 +66,10 @@ function Registration() {
 
     return (
         <div className="auth-container">
+            <div className="auth-left">
 
+            </div>
+            <div className="auth-right">
             <form onSubmit={handleRegister} className="auth-form">
                 <h2>Register</h2>
                 <input
@@ -117,9 +120,10 @@ function Registration() {
                 {errorMsg && <p className="error">{errorMsg}</p>}
                 {successMsg && <p className="success">{successMsg}</p>}
                 <p className="login-link">
-                    Have an account already? <Link to="/">Login here</Link>
+                    Have an account already? <Link to="/login">Login here</Link>
                 </p>
             </form>
+            </div>
 
         </div>
     );

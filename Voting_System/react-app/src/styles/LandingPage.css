@@ -2,7 +2,6 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background: url("/your-background.svg") no-repeat center center;
     background-size: cover;
 }
 
@@ -15,10 +14,6 @@ header {
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
-header img {
-    height: 40px;
-    margin-right: 0.5rem;
-}
 
 header h1 {
     color: #22d3ee;
@@ -26,43 +21,25 @@ header h1 {
     margin: 0;
 }
 
-nav .btn-login {
-    margin-left: 1rem;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    border: none;
+.hero {
+    height: fit-content;
     font-weight: bold;
-    cursor: pointer;
-    background-color: #06b6d4;
-    color: #000;
-}
-
-nav .btn-register {
-    margin-left: 1rem;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    background-color: transparent;
-    color: #fff;
-    border: 1px solid #fff;
-}
-
-section.hero {
     padding: 5rem 2rem;
     text-align: center;
-    background: linear-gradient(to right, #0f172aee, #1e293bee);
+    background-image: url("../assets/LoginBackground.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
-.hero h2 {
+.hero-text{
     font-size: 3rem;
     max-width: 700px;
     margin: 0 auto 1rem;
+    opacity: 1;
 }
 
 .hero p {
-    color: #94a3b8;
     max-width: 600px;
     margin: 0 auto 2rem;
     font-size: 1.125rem;
