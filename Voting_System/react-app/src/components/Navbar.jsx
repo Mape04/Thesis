@@ -1,15 +1,15 @@
-import React, { useContext } from 'react';
+import React, {useContext, useEffect} from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { VoterContext } from '../context/VoterContext';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import "../styles/Navbar.css";
+
 import logo from "../assets/securevote.svg";
 
 function Navbar() {
     const { logout } = useContext(VoterContext);
     const navigate = useNavigate();
-    const location = useLocation();
 
     const handleLogout = () => {
         logout();
@@ -21,13 +21,7 @@ function Navbar() {
     };
 
     const handleBack = () => {
-        if (window.history.length > 2 && document.referrer.startsWith(window.location.origin)) {
-            navigate(-1);
-        } else if (location.pathname.startsWith('/election/')) {
-            navigate('/elections'); // fallback from details
-        } else {
-            navigate('/'); // general fallback
-        }
+        navigate(-1);
     };
 
     return (

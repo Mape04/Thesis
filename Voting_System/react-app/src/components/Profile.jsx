@@ -3,10 +3,14 @@ import { VoterContext } from '../context/VoterContext';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import '../styles/Profile.css';
+import Select from 'react-select';
+import Fuse from 'fuse.js';
+import cityData from '../assets/ro_city_county.json';
 
 function Profile() {
     const { voterId, logout } = useContext(VoterContext);
     const navigate = useNavigate();
+
 
     const [voterData, setVoterData] = useState({
         voterName: '',
@@ -16,22 +20,33 @@ function Profile() {
     });
 
     const [cnp, setCnp] = useState('');
+
     const [region, setRegion] = useState('');
+    const [regionOptions, setRegionOptions] = useState([]);
+    const [selectedCounty, setSelectedCounty] = useState('');
+    const [cityOptions, setCityOptions] = useState([]);
+
+
     const [birthdate, setBirthdate] = useState('');
 
     const [selectedImage, setSelectedImage] = useState(null);
     const [previewUrl, setPreviewUrl] = useState('');
     const [verificationStatus, setVerificationStatus] = useState('');
 
-
+    useEffect(() => {
+        const localities = [];
+        cityData.judete.forEach(judet => {
+            judet.localitati.forEach(loc => {
+                const name = normalizeName(loc.simplu || loc.nume);
+                localities.push({ label: name, value: name });
+            });
+        });
+        localities.sort((a, b) => a.label.localeCompare(b.label));
+        setRegionOptions(localities);
+    }, []);
 
     // Fetch voter info only if voterId is valid
     useEffect(() => {
-        if (!voterId) {
-            navigate('/');
-            return;
-        }
-
         const fetchVoter = async () => {
             try {
                 const res = await fetch(`http://localhost:8080/api/voters/${voterId}`);
@@ -157,6 +172,22 @@ function Profile() {
         }
     };
 
+    useEffect(() => {
+        if (!voterId) {
+            navigate('/');
+        }
+    }, [voterId, navigate]);
+
+    function normalizeName(name) {
+        return name
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, '')
+            .replace(/[șŞ]/g, 's').replace(/[țŢ]/g, 't')
+            .replace(/[ăĂ]/g, 'a').replace(/[îÎ]/g, 'i')
+            .replace(/[âÂ]/g, 'a');
+    }
+
+
+
     return (
         <div className="profile-page">
             <Navbar />
@@ -207,6 +238,9 @@ function Profile() {
                         <p className="warning-text">
                             To vote in INSTITUTION elections, enter your CNP (SSN) below:
                         </p>
+
+                        <div className={"form-wrapper"}>
+                            <label>SSN:</label>
                         <input
                             type="text"
                             value={cnp}
@@ -214,19 +248,57 @@ function Profile() {
                             placeholder="Enter your CNP (13 digits)"
                             maxLength={13}
                         />
-                        <input
-                            type="text"
+                        </div>
+                        <div className={"form-wrapper"}>
+                        <label>County:</label>
+                        <select
+                            value={selectedCounty}
+                            onChange={(e) => {
+                                const countyName = e.target.value;
+                                setSelectedCounty(countyName);
+
+                                const county = cityData.judete.find(j => j.nume === countyName);
+                                const localitati = county?.localitati || [];
+
+                                const normalized = localitati.map(loc =>
+                                    normalizeName(loc.simplu || loc.nume)
+                                );
+
+                                normalized.sort();
+                                setCityOptions(normalized);
+                                setRegion(''); // reset city selection
+                            }}
+                        >
+                            <option value="">Select a county</option>
+                            {cityData.judete.map((j, i) => (
+                                <option key={i} value={j.nume}>{j.nume}</option>
+                            ))}
+                        </select>
+                        </div>
+
+                        <div className={"form-wrapper"}>
+                        <label>City:</label>
+                        <select
                             value={region}
                             onChange={(e) => setRegion(e.target.value)}
-                            placeholder="Enter your region (e.g. Cluj)"
-                        />
+                            disabled={!selectedCounty}
+                        >
+                            <option value="">Select a city</option>
+                            {cityOptions.map((city, i) => (
+                                <option key={i} value={city}>{city}</option>
+                            ))}
+                        </select>
+                        </div>
 
+                        <div className={"form-wrapper"}>
+                        <label>DOB:</label>
                         <input
                             type="date"
                             value={birthdate}
                             onChange={(e) => setBirthdate(e.target.value)}
                             placeholder="Enter your birthdate"
                         />
+                        </div>
 
                         <button onClick={handleVerifyHuman}>Verify</button>
                         {verificationStatus && <p>{verificationStatus}</p>}

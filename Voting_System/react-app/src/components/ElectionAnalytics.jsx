@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Pie } from "react-chartjs-2"; // add this at the top
-
-import {
-    Bar, Line, Doughnut,
-} from "react-chartjs-2";
+import { Bar, Line, Doughnut, Pie } from "react-chartjs-2";
 import {
     Chart as ChartJS,
     CategoryScale, LinearScale, BarElement,
     PointElement, LineElement, Title, Tooltip, Legend,
     ArcElement,
 } from "chart.js";
+import SockJS from "sockjs-client";
+import { Client } from "@stomp/stompjs";
 import "../styles/ElectionAnalytics.css";
 
 ChartJS.register(
@@ -45,35 +43,52 @@ function ElectionAnalytics() {
         };
 
         fetchAnalytics();
+
+        // Setup STOMP over SockJS
+        const stompClient = new Client({
+            webSocketFactory: () => new SockJS("http://localhost:8080/ws"),
+            reconnectDelay: 5000,
+            debug: (str) => console.log("[STOMP]", str),
+            onConnect: () => {
+                console.log("✅ Connected to WebSocket /ws");
+
+                stompClient.subscribe("/topic/analytics", (message) => {
+                    const data = JSON.parse(message.body);
+                    console.log("📡 Received analytics update:", data);
+
+                    if (data.votesPerCandidate) setVotesPerCandidate(data.votesPerCandidate);
+                    if (data.turnoutStats) setTurnoutStats(data.turnoutStats);
+                    if (data.regionParticipation) setRegionParticipation(data.regionParticipation);
+                });
+            }
+        });
+
+        stompClient.activate();
+
+        return () => {
+            stompClient.deactivate();
+        };
     }, [electionId]);
 
     const chartOptions = {
         responsive: true,
         plugins: {
-            legend: {
-                display: false
-            },
+            legend: { display: false },
             tooltip: {
-                backgroundColor: "#ggg",
+                backgroundColor: "#333",
                 titleColor: "#fff",
                 bodyColor: "#fff"
             }
         },
         scales: {
-            x: {
-                ticks: { color: "#fff" },
-                grid: { display: false }
-            },
-            y: {
-                beginAtZero: true,
-                ticks: { color: "#fff" },
-                grid: { color: "#eee" }
-            }
+            x: { ticks: { color: "#fff" }, grid: { display: false } },
+            y: { beginAtZero: true, ticks: { color: "#fff" }, grid: { color: "#eee" } }
         }
     };
 
     const pieOptions = {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
             legend: {
                 display: true,
@@ -91,8 +106,6 @@ function ElectionAnalytics() {
         }
     };
 
-
-
     const renderChart = () => {
         if (activeTab === "votes") {
             return (
@@ -105,7 +118,10 @@ function ElectionAnalytics() {
                             backgroundColor: "#4A90E2"
                         }]
                     }}
-                    options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: true, text: "Votes Per Candidate" } } }}
+                    options={{
+                        ...chartOptions,
+                        plugins: { ...chartOptions.plugins, title: { display: true, text: "Votes Per Candidate" } }
+                    }}
                 />
             );
         }
@@ -123,18 +139,20 @@ function ElectionAnalytics() {
                             tension: 0.3
                         }]
                     }}
-                    options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: true, text: "Turnout Over Time" } } }}
+                    options={{
+                        ...chartOptions,
+                        plugins: { ...chartOptions.plugins, title: { display: true, text: "Turnout Over Time" } }
+                    }}
                 />
             );
         }
 
         if (activeTab === "region" && regionParticipation.length > 0) {
             const isSingleRegion = regionParticipation.length === 1;
-
             const chartData = {
                 labels: regionParticipation.map(r => r.region),
                 datasets: [{
-                    data: regionParticipation.map(r => Number(r.voteCount)), // ensure numeric
+                    data: regionParticipation.map(r => Number(r.voteCount)),
                     backgroundColor: regionParticipation.map((_, i) =>
                         `hsl(${(i * 50) % 360}, 70%, 60%)`
                     ),
@@ -144,8 +162,8 @@ function ElectionAnalytics() {
             };
 
             const chartComponent = isSingleRegion
-                ? <Doughnut data={chartData} options={{ ...pieOptions, maintainAspectRatio: false }} width={400} height={400} />
-                : <Pie data={chartData} options={{ ...pieOptions, maintainAspectRatio: false }} width={400} height={400} />;
+                ? <Doughnut data={chartData} options={pieOptions} />
+                : <Pie data={chartData} options={pieOptions} />;
 
             return (
                 <div style={{ height: "400px", width: "100%", maxWidth: "500px", margin: "0 auto" }}>

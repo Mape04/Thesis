@@ -8,25 +8,9 @@ import LandingPage from "./LandingPage.jsx";
 import { VoterProvider, VoterContext } from '../context/VoterContext';
 import { useContext } from 'react';
 import Profile from "./Profile.jsx";
-import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
-
-function useLastPageTracker() {
-    const location = useLocation();
-
-    useEffect(() => {
-        const current = sessionStorage.getItem("currentPath");
-        if (current !== location.pathname) {
-            sessionStorage.setItem("lastPage", current);
-            sessionStorage.setItem("currentPath", location.pathname);
-        }
-    }, [location]);
-}
-
 
 function AppRoutes() {
     const { isLoggedIn } = useContext(VoterContext);
-    useLastPageTracker();
     return (
         <Routes>
             <Route path="/" element={<LandingPage />}/>
@@ -34,7 +18,7 @@ function AppRoutes() {
             <Route path="/register" element={<Registration />} />
             <Route path="/elections" element={isLoggedIn ? <ElectionsPage /> : <Navigate to="/" replace />} />
             <Route path="/election/:electionId" element={isLoggedIn ? <ElectionDetails /> : <Navigate to="/" replace />} />
-            <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate  to="/profile" replace /> }/>
+            <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate  to="/" replace /> }/>
         </Routes>
     );
 }
