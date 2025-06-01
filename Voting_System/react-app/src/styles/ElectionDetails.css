@@ -1,14 +1,20 @@
-.election-page {
-    min-height: 100vh;
+.election-details{
     background-color: #0f172a;
+    min-height: 100vh;
+}
+
+.election-page {
     padding: 2rem;
     color: white;
     font-family: "Segoe UI", sans-serif;
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
 }
 
 .election-container {
+    width: 100%;
     max-width: 800px;
-    margin: 0 auto;
     background-color: #1e293b;
     border-radius: 10px;
     padding: 2rem;

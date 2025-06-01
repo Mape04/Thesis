@@ -17,7 +17,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:5173")  // Allow React dev server access
 public class AuthController {
 
     private final VoterService voterService;

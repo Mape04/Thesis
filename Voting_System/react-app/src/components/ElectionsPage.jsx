@@ -6,6 +6,7 @@ import { faLock } from '@fortawesome/free-solid-svg-icons';
 import "../styles/ElectionsPage.css";
 import { VoterContext } from "../context/VoterContext.jsx";
 import Navbar from "./Navbar.jsx";
+import {FaPlus} from "react-icons/fa";
 
 function ElectionsPage() {
     const [elections, setElections] = useState([]);
@@ -419,7 +420,9 @@ function ElectionsPage() {
                             value={newElection.endDate}
                             onChange={handleModalChange}
                         />
+                        <div className="list-container">
                         <select
+                            className={"election-type-list"}
                             name="electionType"
                             value={newElection.electionType || "POLL"}
                             onChange={(e) => {
@@ -437,6 +440,7 @@ function ElectionsPage() {
                         </select>
 
                         <select
+                            className={"access-level-list"}
                             name="accessLevel"
                             value={newElection.accessLevel || "BASIC"}
                             onChange={(e) => setNewElection(prev => ({
@@ -449,7 +453,7 @@ function ElectionsPage() {
                                 <option value="INSTITUTION">Institution</option>
                             )}
                         </select>
-
+                        </div>
 
                         {newElection.electionType === "STANDARD" && (
                             <input
@@ -501,7 +505,7 @@ function ElectionsPage() {
                                 />
                             </div>
                         ))}
-                        <button onClick={addCandidateField}>+ Add Candidate</button>
+                        <button className={"add-candidate-btn"} onClick={addCandidateField}><FaPlus/> Add Candidate</button>
 
 
                         <div className="modal-buttons">

@@ -26,21 +26,24 @@ header h1 {
     margin: 0;
 }
 
-nav button {
+nav .btn-login {
     margin-left: 1rem;
     padding: 0.5rem 1rem;
     border-radius: 6px;
     border: none;
     font-weight: bold;
     cursor: pointer;
-}
-
-nav .btn-login {
     background-color: #06b6d4;
     color: #000;
 }
 
 nav .btn-register {
+    margin-left: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
     background-color: transparent;
     color: #fff;
     border: 1px solid #fff;

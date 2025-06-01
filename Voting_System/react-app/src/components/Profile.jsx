@@ -88,7 +88,16 @@ function Profile() {
                 voterType: refreshedData.voterType,
                 verifiedHuman: refreshedData.verifiedHuman,
             });
-            setPreviewUrl(`http://localhost:8080/api/voters/${voterId}/image`);
+            if (selectedImage) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setPreviewUrl(reader.result); // ✅ show uploaded image immediately
+                };
+                reader.readAsDataURL(selectedImage);
+            } else {
+                setPreviewUrl(`http://localhost:8080/api/voters/${voterId}/image`);
+            }
+
         } catch (err) {
             console.error('Update failed:', err);
             alert(`❌ Update failed: ${err.message}`);
@@ -149,7 +158,7 @@ function Profile() {
     };
 
     return (
-        <>
+        <div className="profile-page">
             <Navbar />
             <div className="profile-wrapper">
                 <div className="profile-header">
@@ -166,7 +175,7 @@ function Profile() {
                     <input
                         type="text"
                         value={voterData.voterName}
-                        onChange={(e) => setVoterData({ ...voterData, voterName: e.target.value })}
+                        onChange={(e) => setVoterData({...voterData, voterName: e.target.value})}
                     />
                 </div>
 
@@ -175,13 +184,16 @@ function Profile() {
                     <input
                         type="email"
                         value={voterData.voterEmail}
-                        onChange={(e) => setVoterData({ ...voterData, voterEmail: e.target.value })}
+                        onChange={(e) => setVoterData({...voterData, voterEmail: e.target.value})}
                     />
                 </div>
 
                 <div className="profile-form-group">
                     <label>Profile Image</label>
-                    <input type="file" accept="image/*" onChange={handleImageChange} />
+                    <label htmlFor="file-upload" className="custom-file-upload">
+                        Click to upload your Profile Image!
+                    </label>
+                    <input id="file-upload" type="file" accept="image/*" onChange={handleImageChange}/>
                 </div>
 
                 <div className="profile-buttons">
@@ -226,7 +238,7 @@ function Profile() {
                     </div>
                 )}
             </div>
-        </>
+        </div>
     );
 }
 

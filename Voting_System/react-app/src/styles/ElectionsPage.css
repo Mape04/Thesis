@@ -1,6 +1,7 @@
 .elections-page-container {
     min-height: 100vh;
-    background-color: #0f172a;
+    background: #001a99;
+    background: linear-gradient(180deg, rgba(0, 26, 153, 1) 0%, rgba(0, 26, 153, 1) 50%, rgba(0, 171, 165, 1) 100%);
     color: white;
     padding: 2rem;
     font-family: "Segoe UI", sans-serif;
@@ -21,6 +22,15 @@
     gap: 1rem;
     flex-wrap: wrap;
 }
+
+.filter-dropdown {
+    color: #22d3ee;
+    background-color: transparent;
+    border: 1px solid #22d3ee;
+    padding: 5px;
+    border-radius: 6px;
+}
+
 
 .search-bar {
     flex: 1;
@@ -151,4 +161,46 @@
     display: flex;
     gap: 1rem;
     margin-bottom: 1rem;
+}
+
+.list-container{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.election-type-list {
+    color: #22d3ee;
+    background-color: transparent;
+    border: 1px solid #22d3ee;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 1rem;
+    width: auto;
+    min-width: 150px;
+}
+
+.access-level-list{
+    color: #22d3ee;
+    background-color: transparent;
+    border: 1px solid #22d3ee;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 1rem;
+    width: auto;
+    min-width: 150px;
+}
+
+.add-candidate-btn{
+    background-color: #22d3ee;
+    color: #0f172a;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-weight: bold;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 1rem;
+    cursor: pointer;
 }

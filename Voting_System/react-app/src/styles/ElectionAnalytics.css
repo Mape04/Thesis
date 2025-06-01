@@ -1,9 +1,11 @@
 .analytics-wrapper {
-    margin: 40px auto;
     padding: 20px;
+    width: 100%;
     max-width: 900px;
-    background: #fff;
+    height: fit-content;
+    min-height: 500px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    background: #1e293b;
     border-radius: 12px;
 }
 
@@ -14,8 +16,8 @@
 }
 
 .analytics-tabs button {
-    background: #eee;
-    border: none;
+    border: 1px solid #22d3ee;
+    background: transparent;
     padding: 10px 20px;
     margin: 0 10px;
     cursor: pointer;
@@ -32,4 +34,5 @@
 
 .analytics-chart {
     padding: 10px;
+    height: 400px;
 }

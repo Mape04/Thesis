@@ -4,6 +4,7 @@ import domain.*;
 import dto.VoteDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import repository.*;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,8 @@ public class VoteService {
     private final BlindCredentialRepository blindCredentialRepository;
     private final RsaKeyRepository rsaKeyRepository;
     private final RsaKeyConverter rsaKeyConverter;
+    private final SimpMessagingTemplate messagingTemplate;
+    private final AnalyticsService analyticsService;
 
 
     public ResponseEntity<Map<String, String>> submitVote(VoteDTO voteDTO) {
@@ -103,6 +106,16 @@ public class VoteService {
             vote.setEncryptedVote(encryptedVote);
             vote.setTimestamp(LocalDateTime.now());
             voteRepository.save(vote);
+
+            UUID electionId = voteDTO.getElectionId();
+
+            Map<String, Object> update = new HashMap<>();
+            update.put("votesPerCandidate", analyticsService.getVotesPerCandidate(electionId));
+            update.put("turnoutStats", analyticsService.getTurnoutStats(electionId));
+            update.put("regionParticipation", analyticsService.getRegionParticipation(electionId));
+
+            messagingTemplate.convertAndSend("/topic/analytics", update);
+
 
             // 9. Mark blind token as used
             matchingCredential.setUsed(true);

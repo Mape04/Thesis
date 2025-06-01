@@ -339,7 +339,7 @@ function ElectionDetails() {
     if (!election) return <p>Loading election details...</p>;
 
     return (
-        <>
+        <div className="election-details">
             <Navbar/>
             <div className="election-page">
                 <div className="election-container">
@@ -405,6 +405,7 @@ function ElectionDetails() {
 
 
                 </div>
+                <ElectionAnalytics electionId={electionId} />
             </div>
 
             {isEditMode && (
@@ -514,8 +515,8 @@ function ElectionDetails() {
                     </div>
                 </div>
             )}
-            <ElectionAnalytics electionId={electionId} />
-        </>
+
+        </div>
     );
 }
 

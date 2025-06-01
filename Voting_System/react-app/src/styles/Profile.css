@@ -1,3 +1,8 @@
+.profile-page{
+    background: #002c91;
+    background: radial-gradient(circle, rgba(0, 44, 145, 1) 0%, rgba(92, 9, 115, 1) 100%);
+    min-height: 100vh;
+}
 .profile-wrapper {
     max-width: 600px;
     margin: 60px auto;
@@ -57,16 +62,6 @@
     display: flex;
     justify-content: space-between;
     margin-top: 30px;
-}
-
-.profile-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    font-weight: 500;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
 }
 
 .profile-button.save {
@@ -149,4 +144,54 @@
 
 .verify-section button:hover {
     background-color: #267acc;
+}
+
+.save{
+    color: black;
+    padding: 10px 15px;
+    border-radius: 6px;
+    background-color: lawngreen;
+    border: none;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.save:hover{
+    opacity: var(--button-hover-opacity);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.delete{
+    color: red;
+    padding: 10px 15px;
+    border-radius: 6px;
+    background-color: transparent;
+    border: 1px solid red;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.delete:hover{
+    opacity: var(--button-hover-opacity);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.custom-file-upload {
+    display: inline-block;
+    cursor: pointer;
+    margin-bottom: 6px;
+    font-weight: 500;
+    padding: 5px;
+    border-radius: 6px;
+    border: 1px solid #394b63;
+    background-color: #2b2d42;
+    color: #e0e6f0;
 }

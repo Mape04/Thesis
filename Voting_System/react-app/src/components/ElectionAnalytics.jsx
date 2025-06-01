@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Pie } from "react-chartjs-2"; // add this at the top
+
 import {
     Bar, Line, Doughnut,
 } from "react-chartjs-2";
@@ -52,23 +54,44 @@ function ElectionAnalytics() {
                 display: false
             },
             tooltip: {
-                backgroundColor: "#333",
+                backgroundColor: "#ggg",
                 titleColor: "#fff",
                 bodyColor: "#fff"
             }
         },
         scales: {
             x: {
-                ticks: { color: "#444" },
+                ticks: { color: "#fff" },
                 grid: { display: false }
             },
             y: {
                 beginAtZero: true,
-                ticks: { color: "#444" },
+                ticks: { color: "#fff" },
                 grid: { color: "#eee" }
             }
         }
     };
+
+    const pieOptions = {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'bottom'
+            },
+            title: {
+                display: true,
+                text: "Participation by Region"
+            },
+            tooltip: {
+                backgroundColor: "#333",
+                titleColor: "#fff",
+                bodyColor: "#fff"
+            }
+        }
+    };
+
+
 
     const renderChart = () => {
         if (activeTab === "votes") {
@@ -105,20 +128,29 @@ function ElectionAnalytics() {
             );
         }
 
-        if (activeTab === "region") {
+        if (activeTab === "region" && regionParticipation.length > 0) {
+            const isSingleRegion = regionParticipation.length === 1;
+
+            const chartData = {
+                labels: regionParticipation.map(r => r.region),
+                datasets: [{
+                    data: regionParticipation.map(r => Number(r.voteCount)), // ensure numeric
+                    backgroundColor: regionParticipation.map((_, i) =>
+                        `hsl(${(i * 50) % 360}, 70%, 60%)`
+                    ),
+                    borderWidth: 1,
+                    borderColor: "#1e293b"
+                }]
+            };
+
+            const chartComponent = isSingleRegion
+                ? <Doughnut data={chartData} options={{ ...pieOptions, maintainAspectRatio: false }} width={400} height={400} />
+                : <Pie data={chartData} options={{ ...pieOptions, maintainAspectRatio: false }} width={400} height={400} />;
+
             return (
-                <Doughnut
-                    data={{
-                        labels: regionParticipation.map(r => r.region),
-                        datasets: [{
-                            data: regionParticipation.map(r => r.voteCount),
-                            backgroundColor: [
-                                "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#F67019"
-                            ]
-                        }]
-                    }}
-                    options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: true, text: "Participation by Region" } } }}
-                />
+                <div style={{ height: "400px", width: "100%", maxWidth: "500px", margin: "0 auto" }}>
+                    {chartComponent}
+                </div>
             );
         }
 
