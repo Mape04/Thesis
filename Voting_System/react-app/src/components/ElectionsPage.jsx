@@ -35,11 +35,12 @@ function ElectionsPage() {
         electionType: '',
         runOffStartDate: '',
         runOffEndDate: '',
-        candidates: [{ name: '', party: '' }]
+        candidates: [{ name: '', party: '' }],
+        electionDescription: ''
     });
 
 
-    const { voterId } = useContext(VoterContext); // 🔥 You might use voterId for creating ElectionAuthority
+    const { voterId } = useContext(VoterContext);
 
     const navigate = useNavigate();
 
@@ -98,7 +99,7 @@ function ElectionsPage() {
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log("Fetched voter data:", data);
+                    // console.log("Fetched voter data:", data);
 
                     setVoterInfo({
                         voterName: data.voterName,
@@ -121,7 +122,7 @@ function ElectionsPage() {
         try {
             const res = await fetch(`http://localhost:8080/api/elections/${electionId}`);
             if (!res.ok) {
-                console.error(`❌ Failed to load election (${res.status})`);
+                console.error(`Failed to load election (${res.status})`);
                 alert("Could not load election. Please try again.");
                 return;
             }
@@ -129,9 +130,9 @@ function ElectionsPage() {
 
 
             if (data.accessLevel === "INSTITUTION") {
-                console.log(voterInfo.verifiedHuman);
+                // console.log(voterInfo.verifiedHuman);
                 if (!voterInfo.verifiedHuman) {
-                    alert("❌ You must verify your identity (SSN, address) to access this election.");
+                    alert("You must verify your identity (SSN, address) to access this election.");
                     return;
                 }
             }
@@ -197,14 +198,14 @@ function ElectionsPage() {
 
     const submitNewElection = async () => {
         try {
-            console.log("🔥 Step 1: Creating ElectionAuthority");
-            console.log("Voter Info:", voterInfo);
+            // console.log("Step 1: Creating ElectionAuthority");
+            // console.log("Voter Info:", voterInfo);
 
             const authorityPayload = {
                 authorityName: voterInfo.voterName,
                 authorityEmail: voterInfo.voterEmail
             };
-            console.log("Authority Payload:", authorityPayload);
+            // console.log("Authority Payload:", authorityPayload);
 
             const authorityResponse = await fetch("http://localhost:8080/api/election-authorities", {
                 method: "POST",
@@ -214,17 +215,17 @@ function ElectionsPage() {
 
             if (!authorityResponse.ok) {
                 const errText = await authorityResponse.text();
-                console.error("❌ Failed to create authority:", errText);
+                console.error("Failed to create authority:", errText);
                 alert("Failed to create authority.");
                 return;
             }
 
             const authorityData = await authorityResponse.json();
-            console.log("✅ Created Authority:", authorityData);
+            // console.log("Created Authority:", authorityData);
 
             const electionAuthorityId = authorityData.electionAuthorityId;
 
-            // 🔥 Step 2: Create Election
+            // Step 2: Create Election
             const electionPayload = {
                 electionName: newElection.electionName,
                 electionPassword: newElection.electionPassword || null,
@@ -234,13 +235,13 @@ function ElectionsPage() {
                 nrVotesPerVoter: newElection.electionType === "POLL" ? 0 : parseInt(newElection.nrVotesPerVoter || 0),
                 electionType: newElection.electionType || "POLL",
                 accessLevel: newElection.accessLevel || "BASIC",
-                electionDescription: "Custom created election",
+                electionDescription: newElection.electionDescription || "No description provided",
                 runoffStartDate: newElection.electionType === "TOP_TWO_RUNOFF" ? newElection.runoffStartDate : null,
                 runoffEndDate: newElection.electionType === "TOP_TWO_RUNOFF" ? newElection.runoffEndDate : null
             };
 
-            console.log("📝 Election Payload:", electionPayload);
-            console.log("Election Payload (JSON):", JSON.stringify(electionPayload, null, 2));
+            // console.log("Election Payload:", electionPayload);
+            // console.log("Election Payload (JSON):", JSON.stringify(electionPayload, null, 2));
 
 
             const electionResponse = await fetch(`http://localhost:8080/api/elections/${electionAuthorityId}`, {
@@ -259,16 +260,16 @@ function ElectionsPage() {
                     errorMessage = fallback || errorMessage;
                 }
 
-                console.error("❌ Failed to create election:", errorMessage);
-                alert(`❌ Failed to create election: ${errorMessage}`);
+                console.error("Failed to create election:", errorMessage);
+                alert(`Failed to create election: ${errorMessage}`);
                 return;
             }
 
 
             const createdElection = await electionResponse.json();
-            console.log("✅ Created Election:", createdElection);
+            // console.log("Created Election:", createdElection);
 
-            // 🔥 Step 3: Add Candidates
+            // Step 3: Add Candidates
             for (const candidate of newElection.candidates) {
                 if (candidate.name.trim() !== '') {
                     const candidatePayload = {
@@ -287,26 +288,26 @@ function ElectionsPage() {
                         const errText = await candidateResponse.text();
                         const errorMessage = JSON.parse(errText)?.message || errText;
 
-                        console.error(`❌ Failed to create candidate "${candidate.name}":`, errorMessage);
+                        console.error(`Failed to create candidate "${candidate.name}":`, errorMessage);
 
-                        // ❌ Cleanup: delete the already-created election
+                        // Cleanup: delete the already-created election
                         await fetch(`http://localhost:8080/api/elections/${createdElection.electionId}`, {
                             method: "DELETE"
                         });
 
-                        alert(`❌ Invalid candidate "${candidate.name}": ${errorMessage}\nElection has been deleted.`);
+                        alert(`Invalid candidate "${candidate.name}": ${errorMessage}\nElection has been deleted.`);
                         return;
                     }
                 }
             }
 
 
-            alert("🎉 Election created successfully!");
+            alert("Election created successfully!");
             setShowCreateModal(false);
             window.location.reload();
 
         } catch (error) {
-            console.error("❌ Error creating election:", error);
+            console.error("Error creating election:", error);
             alert("Unexpected error occurred during election creation.");
         }
     };
@@ -341,7 +342,7 @@ function ElectionsPage() {
             <div className="elections-page-container">
                 <h1>Available Elections</h1>
 
-                {/* 🔥 Search and Create Bar */}
+                {/* Search and Create Bar */}
                 <div className="search-create-bar">
                     <select
                         value={filter}
@@ -403,7 +404,7 @@ function ElectionsPage() {
                 </div>
             </div>
 
-            {/* 🔥 Create Election Modal */}
+            {/* Create Election Modal */}
             {showCreateModal && (
                 <div className="modal-overlay">
                     <div className="modal-content">
@@ -423,6 +424,14 @@ function ElectionsPage() {
                             value={newElection.electionPassword}
                             onChange={handleModalChange}
                         />
+                        <textarea
+                            name="electionDescription"
+                            placeholder="Election Description"
+                            value={newElection.electionDescription}
+                            onChange={handleModalChange}
+                            className="election-description-input"
+                        />
+
                         <input
                             type="datetime-local"
                             name="startDate"
@@ -436,38 +445,38 @@ function ElectionsPage() {
                             onChange={handleModalChange}
                         />
                         <div className="list-container">
-                        <select
-                            className={"election-type-list"}
-                            name="electionType"
-                            value={newElection.electionType || "POLL"}
-                            onChange={(e) => {
-                                const type = e.target.value;
-                                setNewElection(prev => ({
-                                    ...prev,
-                                    electionType: type,
-                                    nrVotesPerVoter: type === "POLL" ? 0 : type === "TOP_TWO_RUNOFF" ? 1 : prev.nrVotesPerVoter
-                                }));
-                            }}
-                        >
-                            <option value="POLL">POLL</option>
-                            <option value="STANDARD">STANDARD</option>
-                            <option value="TOP_TWO_RUNOFF">TOP_TWO_RUNOFF</option>
-                        </select>
+                            <select
+                                className={"election-type-list"}
+                                name="electionType"
+                                value={newElection.electionType || "POLL"}
+                                onChange={(e) => {
+                                    const type = e.target.value;
+                                    setNewElection(prev => ({
+                                        ...prev,
+                                        electionType: type,
+                                        nrVotesPerVoter: type === "POLL" ? 0 : type === "TOP_TWO_RUNOFF" ? 1 : prev.nrVotesPerVoter
+                                    }));
+                                }}
+                            >
+                                <option value="POLL">POLL</option>
+                                <option value="STANDARD">STANDARD</option>
+                                <option value="TOP_TWO_RUNOFF">TOP_TWO_RUNOFF</option>
+                            </select>
 
-                        <select
-                            className={"access-level-list"}
-                            name="accessLevel"
-                            value={newElection.accessLevel || "BASIC"}
-                            onChange={(e) => setNewElection(prev => ({
-                                ...prev,
-                                accessLevel: e.target.value
-                            }))}
-                        >
-                            <option value="BASIC">Public</option>
-                            {voterInfo.voterType === "INSTITUTION_VERIFIED" && (
-                                <option value="INSTITUTION">Institution</option>
-                            )}
-                        </select>
+                            <select
+                                className={"access-level-list"}
+                                name="accessLevel"
+                                value={newElection.accessLevel || "BASIC"}
+                                onChange={(e) => setNewElection(prev => ({
+                                    ...prev,
+                                    accessLevel: e.target.value
+                                }))}
+                            >
+                                <option value="BASIC">Public</option>
+                                {voterInfo.voterType === "INSTITUTION_VERIFIED" && (
+                                    <option value="INSTITUTION">Institution</option>
+                                )}
+                            </select>
                         </div>
 
                         {newElection.electionType === "STANDARD" && (
@@ -520,7 +529,8 @@ function ElectionsPage() {
                                 />
                             </div>
                         ))}
-                        <button className={"add-candidate-btn"} onClick={addCandidateField}><FaPlus/> Add Candidate</button>
+                        <button className={"add-candidate-btn"} onClick={addCandidateField}><FaPlus/> Add Candidate
+                        </button>
 
 
                         <div className="modal-buttons">

@@ -24,7 +24,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/voters")  // Base URL for all the Voter-related endpoints
+@RequestMapping("/api/voters")
 public class VoterController {
 
     private final VoterService voterService;
@@ -131,11 +131,11 @@ public class VoterController {
                 imageFile = new File("src/main/resources/uploads" + storedPath);
 
                 if (!imageFile.exists()) {
-                    System.out.println("⚠️ Profile image not found, using default.");
+                    System.out.println("⚠Profile image not found, using default.");
                     imageFile = new File("src/main/resources/static/default-user.png");
                 }
             } else {
-                System.out.println("ℹ️ No image set, using default.");
+                System.out.println("No image set, using default.");
                 imageFile = new File("src/main/resources/static/default-user.png");
             }
 
@@ -146,7 +146,7 @@ public class VoterController {
             return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
 
         } catch (Exception e) {
-            System.err.println("❌ Error reading image: " + e.getMessage());
+            System.err.println("Error reading image: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

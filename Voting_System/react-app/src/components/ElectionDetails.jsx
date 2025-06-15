@@ -90,6 +90,9 @@ function ElectionDetails() {
         }
     };
 
+
+
+
     const fetchTotalVotes = async () => {
         try {
             const response = await fetch(`http://localhost:8080/api/elections/${electionId}/vote-count`);
@@ -99,6 +102,7 @@ function ElectionDetails() {
             console.error("Error fetching total votes:", error);
         }
     };
+
 
 
     useEffect(() => {
@@ -228,7 +232,7 @@ function ElectionDetails() {
             alert("Election updated successfully!");
             setIsEditMode(false);
 
-            // 🔁 Optionally re-fetch the election and candidates
+            // Optionally re-fetch the election and candidates
             window.location.reload();
 
         } catch (err) {
@@ -260,15 +264,15 @@ function ElectionDetails() {
         try {
             // 1. Concatenate candidate IDs
             const concatenatedIds = selectedCandidates.join("-");
-            console.log("Concatenated Candidate IDs:", concatenatedIds);
+            // console.log("Concatenated Candidate IDs:", concatenatedIds);
 
             // 2. Hash the concatenated IDs
             const hashedHex = await sha256Hash(concatenatedIds);
-            console.log("Hashed Hex:", hashedHex);
+            // console.log("Hashed Hex:", hashedHex);
 
             const messageBigIntRaw = BigInt("0x" + hashedHex);
             const messageBigInt = messageBigIntRaw % publicKey.n;
-            console.log("Message BigInt:", messageBigInt.toString());
+            // console.log("Message BigInt:", messageBigInt.toString());
 
             // 3. Generate random r
             let r;
@@ -279,7 +283,7 @@ function ElectionDetails() {
 
             const blindingFactor = modPow(r, publicKey.e, publicKey.n);
             const blindedMessage = (blindingFactor * messageBigInt) % publicKey.n;
-            console.log("Blinded Message:", blindedMessage.toString());
+            // console.log("Blinded Message:", blindedMessage.toString());
 
             // 4. Send blinded message for signing
             const response = await fetch("http://localhost:8080/api/encryption/sign-blinded-message", {
@@ -298,13 +302,13 @@ function ElectionDetails() {
             }
 
             const signedBlindedMessageString = await response.text();
-            console.log("Signed Blinded Message:", signedBlindedMessageString);
+            // console.log("Signed Blinded Message:", signedBlindedMessageString);
 
             // 5. Unblind the signed message
             const signedBlindedBigInt = BigInt(signedBlindedMessageString);
             const rInverse = modInverse(r, publicKey.n);
             const finalSignedToken = (signedBlindedBigInt * rInverse) % publicKey.n;
-            console.log("Final Signed Token (Unblinded):", finalSignedToken.toString());
+            // console.log("Final Signed Token (Unblinded):", finalSignedToken.toString());
 
             // 6. Save final token into BlindCredential
             await fetch("http://localhost:8080/api/blind-credential/save", {

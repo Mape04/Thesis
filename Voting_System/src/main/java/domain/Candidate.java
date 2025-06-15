@@ -23,8 +23,8 @@ public class Candidate {
 
     @ManyToOne
     @JoinColumn(name = "election_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE) // 🔥 Add this!
-    private Election election; // Candidates belong to an Election
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Election election;
 
     @Override
     public String toString() {

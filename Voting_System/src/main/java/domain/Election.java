@@ -38,7 +38,7 @@ public class Election {
     @Enumerated(EnumType.STRING)
     private ElectionType electionType;
 
-    // 🔥 Runoff-related fields
+    // Runoff-related fields
     private LocalDateTime runoffStartDate;
     private LocalDateTime runoffEndDate;
 

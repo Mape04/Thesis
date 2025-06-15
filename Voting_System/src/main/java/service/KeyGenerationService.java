@@ -22,7 +22,7 @@ public class KeyGenerationService {
 
     public RsaKey generateNewRsaKey(UUID electionId) throws Exception {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-        keyPairGenerator.initialize(2048);  // 2048 is secure enough for now
+        keyPairGenerator.initialize(2048);
 
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
 

@@ -38,9 +38,6 @@ public class Vote {
     @Column(nullable = false)
     private LocalDateTime timestamp;
 
-
-    // Remove voter reference and signed token to ensure anonymity
-
     @Override
     public String toString() {
         return "Vote{" +

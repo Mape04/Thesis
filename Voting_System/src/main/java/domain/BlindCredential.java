@@ -35,7 +35,7 @@ public class BlindCredential {
     private String signedToken;
 
     @Column(nullable = false)
-    private boolean used = false;  // ✅ New field to track usage
+    private boolean used = false;
 
     @Override
     public String toString() {
@@ -45,7 +45,7 @@ public class BlindCredential {
                 ", electionAuthorityId=" + (electionAuthority != null ? electionAuthority.getElectionAuthorityId() : null) +
                 ", electionId=" + (election != null ? election.getElectionId() : null) +
                 ", signedToken='" + signedToken + '\'' +
-                ", used=" + used +  // ✅ include in debug output
+                ", used=" + used +
                 '}';
     }
 }

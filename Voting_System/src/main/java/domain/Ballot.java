@@ -20,9 +20,6 @@ public class Ballot {
     @JoinColumn(name = "election_id", nullable = false)
     private Election election;
 
-    // ❌ Removed voter link to preserve anonymity
-    // private Voter voter;
-
     @OneToMany(mappedBy = "ballot", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Vote> votes;
 

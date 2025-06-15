@@ -32,7 +32,7 @@ function Login() {
             const data = await response.json();
 
             if (response.ok) {
-                console.log("Login successful", data);
+                // console.log("Login successful", data);
                 setVoterId(data.voterId);
                 setVoterToken(data.voterToken);
             } else {

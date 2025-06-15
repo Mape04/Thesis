@@ -72,7 +72,7 @@ public class EncryptionController {
         return candidateIdsString.getBytes();
     }
 
-    // 🔥 New endpoint: Fetch RSA Public Key for an Election
+
     @GetMapping("/public-key/{electionId}")
     public ResponseEntity<?> getPublicKey(@PathVariable UUID electionId) {
         try {

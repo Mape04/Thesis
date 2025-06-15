@@ -93,7 +93,7 @@ function Profile() {
 
             const result = await res.json();
             if (!res.ok) throw new Error(result.message || 'Unknown error');
-            alert('✅ Profile updated successfully!');
+            alert('Profile updated successfully!');
             // Refresh voter info after save
             const refreshedRes = await fetch(`http://localhost:8080/api/voters/${voterId}`);
             const refreshedData = await refreshedRes.json();
@@ -106,7 +106,7 @@ function Profile() {
             if (selectedImage) {
                 const reader = new FileReader();
                 reader.onloadend = () => {
-                    setPreviewUrl(reader.result); // ✅ show uploaded image immediately
+                    setPreviewUrl(reader.result); // show uploaded image immediately
                 };
                 reader.readAsDataURL(selectedImage);
             } else {
@@ -115,7 +115,7 @@ function Profile() {
 
         } catch (err) {
             console.error('Update failed:', err);
-            alert(`❌ Update failed: ${err.message}`);
+            alert(`Update failed: ${err.message}`);
         }
     };
 
@@ -127,18 +127,18 @@ function Profile() {
                 method: 'DELETE',
             });
             if (!res.ok) throw new Error('Failed to delete profile.');
-            alert('✅ Profile deleted.');
+            alert('Profile deleted.');
             logout();
             navigate('/');
         } catch (err) {
             console.error('Delete failed:', err);
-            alert(`❌ ${err.message}`);
+            alert(` ${err.message}`);
         }
     };
 
     const handleVerifyHuman = async () => {
         if (!/^\d{13}$/.test(cnp)) {
-            setVerificationStatus('❌ CNP must be 13 digits.');
+            setVerificationStatus(' CNP must be 13 digits.');
             return;
         }
 
@@ -156,7 +156,7 @@ function Profile() {
 
             const result = await res.json();
             if (!res.ok) throw new Error(result.error || 'Verification failed.');
-            setVerificationStatus('✅ Verified successfully!');
+            setVerificationStatus('Verified successfully!');
             // Refresh voter data after verification
             const refreshedRes = await fetch(`http://localhost:8080/api/voters/${voterId}`);
             const refreshedData = await refreshedRes.json();
@@ -168,7 +168,7 @@ function Profile() {
             });
         } catch (err) {
             console.error('Verification failed:', err);
-            setVerificationStatus(`❌ ${err.message}`);
+            setVerificationStatus(`${err.message}`);
         }
     };
 

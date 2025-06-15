@@ -73,7 +73,7 @@ public class ElectionController {
         }
 
         List<CandidateDTO> candidateDTOs = candidates.stream()
-                .map(DTOUtils::toCandidateDTO)  // assuming you’ve got a CandidateDTO and a mapper
+                .map(DTOUtils::toCandidateDTO)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(candidateDTOs);

@@ -44,7 +44,7 @@ public class ElectionService {
         ElectionAuthority authority = electionAuthorityRepository.findById(authorityId)
                 .orElseThrow(() -> new RuntimeException("Authority not found."));
 
-        // ✅ Check if an INSTITUTION election is being created
+        //Check if an INSTITUTION election is being created
         if (electionData.getAccessLevel() == ElectionAccessLevel.INSTITUTION) {
             Voter voter = voterRepository.findByVoterEmail(authority.getAuthorityEmail())
                     .orElseThrow(() -> new RuntimeException("Voter not found for authority email."));
@@ -62,7 +62,7 @@ public class ElectionService {
         newElection.setElectionDescription(electionData.getElectionDescription());
         newElection.setNrVotesPerVoter(electionData.getNrVotesPerVoter());
         newElection.setElectionType(electionData.getElectionType());
-        newElection.setAccessLevel(electionData.getAccessLevel()); // ✅ store access level
+        newElection.setAccessLevel(electionData.getAccessLevel());
         newElection.setElectionAuthority(authority);
 
         // Password hashing (optional)
