@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { VoterContext } from '../context/VoterContext';
 import { Link, useNavigate } from 'react-router-dom';
-import logo from '../assets/securevote.svg';
 import '../styles/Navbar.css';
 
 function Navbar() {

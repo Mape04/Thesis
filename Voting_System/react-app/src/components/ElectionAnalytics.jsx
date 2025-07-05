@@ -24,51 +24,75 @@ function ElectionAnalytics() {
     const [turnoutStats, setTurnoutStats] = useState([]);
     const [regionParticipation, setRegionParticipation] = useState([]);
 
+    // useEffect(() => {
+    //     const fetchAnalytics = async () => {
+    //         const urls = [
+    //             `http://localhost:8080/api/elections/${electionId}/analytics/votes-per-candidate`,
+    //             `http://localhost:8080/api/elections/${electionId}/analytics/turnout`,
+    //             `http://localhost:8080/api/elections/${electionId}/analytics/region-participation`
+    //         ];
+    //
+    //         try {
+    //             const [votesRes, turnoutRes, regionRes] = await Promise.all(urls.map(url => fetch(url)));
+    //             setVotesPerCandidate(await votesRes.json());
+    //             setTurnoutStats(await turnoutRes.json());
+    //             setRegionParticipation(await regionRes.json());
+    //         } catch (err) {
+    //             console.error("❌ Analytics fetch failed:", err);
+    //         }
+    //     };
+    //
+    //     fetchAnalytics();
+    //
+    //     // Setup STOMP over SockJS
+    //     const stompClient = new Client({
+    //         webSocketFactory: () => new SockJS("http://localhost:8080/ws"),
+    //         reconnectDelay: 5000,
+    //         debug: (str) => console.log("[STOMP]", str),
+    //         onConnect: () => {
+    //             console.log("✅ Connected to WebSocket /ws");
+    //
+    //             stompClient.subscribe("/topic/analytics", (message) => {
+    //                 const data = JSON.parse(message.body);
+    //                 console.log("📡 Received analytics update:", data);
+    //
+    //                 if (data.votesPerCandidate) setVotesPerCandidate(data.votesPerCandidate);
+    //                 if (data.turnoutStats) setTurnoutStats(data.turnoutStats);
+    //                 if (data.regionParticipation) setRegionParticipation(data.regionParticipation);
+    //             });
+    //         }
+    //     });
+    //
+    //     stompClient.activate();
+    //
+    //     return () => {
+    //         stompClient.deactivate();
+    //     };
+    // }, [electionId]);
+
     useEffect(() => {
-        const fetchAnalytics = async () => {
-            const urls = [
-                `http://localhost:8080/api/elections/${electionId}/analytics/votes-per-candidate`,
-                `http://localhost:8080/api/elections/${electionId}/analytics/turnout`,
-                `http://localhost:8080/api/elections/${electionId}/analytics/region-participation`
-            ];
+        // 🔧 Hardcoded data for demo/testing
+        setVotesPerCandidate([
+            { candidateName: "Metallica", voteCount: 150 },
+            { candidateName: "Backstreet Boys", voteCount: 120 },
+            { candidateName: "Metallica", voteCount: 90 },
+        ]);
 
-            try {
-                const [votesRes, turnoutRes, regionRes] = await Promise.all(urls.map(url => fetch(url)));
-                setVotesPerCandidate(await votesRes.json());
-                setTurnoutStats(await turnoutRes.json());
-                setRegionParticipation(await regionRes.json());
-            } catch (err) {
-                console.error("❌ Analytics fetch failed:", err);
-            }
-        };
+        setTurnoutStats([
+            { timeInterval: "9:00", voteCount: 20 },
+            { timeInterval: "10:00", voteCount: 60 },
+            { timeInterval: "11:00", voteCount: 100 },
+            { timeInterval: "12:00", voteCount: 150 },
+            { timeInterval: "13:00", voteCount: 200 },
+        ]);
 
-        fetchAnalytics();
+        setRegionParticipation([
+            { region: "Cluj", count: 140 },
+            { region: "Bucharest", count: 110 },
+            { region: "Iasi", count: 80 },
+        ]);
+    }, []);
 
-        // Setup STOMP over SockJS
-        const stompClient = new Client({
-            webSocketFactory: () => new SockJS("http://localhost:8080/ws"),
-            reconnectDelay: 5000,
-            debug: (str) => console.log("[STOMP]", str),
-            onConnect: () => {
-                console.log("✅ Connected to WebSocket /ws");
-
-                stompClient.subscribe("/topic/analytics", (message) => {
-                    const data = JSON.parse(message.body);
-                    console.log("📡 Received analytics update:", data);
-
-                    if (data.votesPerCandidate) setVotesPerCandidate(data.votesPerCandidate);
-                    if (data.turnoutStats) setTurnoutStats(data.turnoutStats);
-                    if (data.regionParticipation) setRegionParticipation(data.regionParticipation);
-                });
-            }
-        });
-
-        stompClient.activate();
-
-        return () => {
-            stompClient.deactivate();
-        };
-    }, [electionId]);
 
     const chartOptions = {
         responsive: true,

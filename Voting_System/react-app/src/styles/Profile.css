@@ -1,7 +1,7 @@
 .profile-page{
     /*background: #002c91;*/
     /*background: radial-gradient(circle, rgba(0, 44, 145, 1) 0%, rgba(92, 9, 115, 1) 100%);*/
-    background-image: url("../assets/ProfilePageBackground.jpg");
+    background-image: url("../assets/ProfileBackground.jpg");
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;

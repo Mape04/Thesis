@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { FaVoteYea, FaShieldAlt, FaLock, FaFacebook, FaTwitter, FaGithub } from "react-icons/fa";
-import logo from "../assets/react.svg"; // Replace with your actual logo path
 import "../styles/LandingPage.css";
 import Navbar from "./Navbar.jsx";
 
