@@ -1,1 +1,1 @@
-# Licenta
+# Bachelor's Thesis
